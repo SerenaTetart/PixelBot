@@ -3,7 +3,7 @@
 ## Table of contents
 * [General infos](#general-infos)
 * [Requirements](#requirements)
-* [PixelBot 1.12.1](#pixelbot-1-12-1)
+* [PixelBot 1.12.1](#pixelbot-1121)
 
 ## General Infos
 
@@ -13,9 +13,10 @@ This bot works on every versions of the game (1.12.1, 2.4.3, 3.3.5 or even retai
 
 *All the tests are made on a private server.*
 
-The concept is very simple:
 
-We use the API of the game to generate colors from a pixel based on the situation: for instance if I have to use a spell the pixel will become green with a specific value, then the Python program will read that pixel and simulate the key and finally HotkeyNet (a third program) will redistribute all the inputs toward the respective screens.
+### Concept:
+
+The concept is very simple, we use the API of the game to generate colors from a pixel based on the situation: for instance if I have to use a spell the pixel will become green with a specific value, then the Python program will read that pixel and simulate the key and finally HotkeyNet (a third program) will redistribute all the inputs toward the respective screens.
 
 The combat algorithm is a Decision Tree made by hand: we test multiple conditions iteratively until there is one that is met and we modify the specific color to give an order to the Python program.
 
@@ -37,3 +38,8 @@ The downside is we don't have automated movement, it is implemented only after 3
 * Rotate characters to face the enemy
 * Stop moving when in range of the enemy
 * Taking some steps back when using a Hunter to have the range to use Bows/Guns (won't do that if being attacked)
+
+<p align="center"> <b>Exemple of Decision Tree</b> </p>
+<p align="center">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/IpMdEgo3LgU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</p>
