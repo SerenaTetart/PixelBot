@@ -1,0 +1,47 @@
+<Label wow2 local SendWinM WoW2>
+<Label wow3 local SendWinM WoW3>
+<Label wow4 local SendWinM WoW4>
+
+<Hotkey A-Z; 0-9; Alt Shift A-E>
+	<SendWinM WoW1>
+		<Key %TRIGGER%>
+
+<Hotkey Alt A-Z; Alt 0-9; Alt Shift F-J; Numpad4>
+	<SendWinM WoW2>
+		<Key %TRIGGER%>
+
+<MovementHotkey Numpad2-Numpad3>
+	<SendLabel wow2>
+		<Key %TRIGGER%>
+
+<Hotkey Shift A-Z; Shift 0-9; Alt Shift U-Y; Numpad7>
+	<SendWinM WoW3>
+		<Key %TRIGGER%>
+
+<MovementHotkey Numpad5-Numpad6>
+	<SendLabel wow3>
+		<Key %TRIGGER%>
+
+<Hotkey Ctrl A-Z; Ctrl 0-9; Alt Shift K-O; Numpad0>
+	<SendWinM WoW4>
+		<Key %TRIGGER%>
+
+<MovementHotkey Numpad8; Numpad9>
+	<SendLabel wow4>
+		<Key %TRIGGER%>
+
+<Hotkey F1-F12; Shift F1-F12; Ctrl F1-F12; Alt Shift P-T; Ctrl Numpad1>
+	<SendWinM WoW5>
+		<Key %TRIGGER%>
+
+<Hotkey PgDn; PgUp>
+	<SendWinM WoW1>
+		<Key %TRIGGER%>
+	<SendWinM WoW2>
+		<Key %TRIGGER%>
+	<SendWinM WoW3>
+		<Key %TRIGGER%>
+	<SendWinM WoW4>
+		<Key %TRIGGER%>
+	<SendWinM WoW5>
+		<Key %TRIGGER%>
