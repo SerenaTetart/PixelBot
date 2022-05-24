@@ -38,7 +38,3 @@ The downside is we don't have automated movement, it is implemented only after 3
 * Rotate characters to face the enemy
 * Stop moving when in range of the enemy
 * Taking some steps back when using a Hunter to have the range to use Bows/Guns (won't do that if being attacked)
-
-<p align="center">
-[![PixelBot Demo 1.12.1](https://www.nvidia.com/content/dam/en-zz/Solutions/glossary/data-science/xgboost/img-2.png)](https://www.youtube.com/embed/IpMdEgo3LgU)
-</p>
