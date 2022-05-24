@@ -49,7 +49,7 @@ https://user-images.githubusercontent.com/65224852/170023216-7a54be0d-2e21-4b6a-
 
 *Note that:*
 * *In the new version the druid take a few steps to the right in order to not "stack" with others casters (it's just visualy more interesting)*
-* *I have 4 other screens on my second monitor*
+* *I have 4 others screens on my second monitor*
 
 Furthermore in this version I made a scrapper that takes all the items in the game with their respective statistics and put them inside a database in order to compute bonus healing since the API don't give any functions for this.
 
