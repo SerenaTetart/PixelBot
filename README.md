@@ -38,3 +38,5 @@ The downside is we don't have automated movement, it is implemented only after 3
 * Rotate characters to face the enemy
 * Stop moving when in range of the enemy
 * Taking some steps back when using a Hunter to have the range to use Bows/Guns (won't do that if being attacked)
+
+https://user-images.githubusercontent.com/65224852/170023216-7a54be0d-2e21-4b6a-b61d-57f3dd63d4a0.mp4
