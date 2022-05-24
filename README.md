@@ -50,3 +50,8 @@ https://user-images.githubusercontent.com/65224852/170023216-7a54be0d-2e21-4b6a-
 * *I have 4 other screens on my second monitor*
 
 Furthermore in this version I made a scrapper that takes all the items in the game with their respective statistics and put them inside a database in order to compute bonus healing since the API don't give any functions for this.
+
+<p align="center"> <b>The scrapper in action</b> </p>
+<p align="center">
+<img src="https://user-images.githubusercontent.com/65224852/170027326-1449bb4b-6cb2-468c-aede-91c0fcdeb26a.PNG">
+</p>
