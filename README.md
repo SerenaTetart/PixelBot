@@ -41,6 +41,8 @@ The downside is we don't have automated movement, it is implemented only after 3
 * Stop moving when in range of the enemy
 * Taking some steps back when using a Hunter to have the range to use Bows/Guns (won't do that if being attacked)
 
+Furthermore in this version I made a scrapper that takes all the items in the game with their respective statistics and put them inside a database in order to compute bonus healing since the API don't give any functions for this.
+
 <p align="center"> <b>Exemple of dungeon using PixelBot</b> </p>
 
 https://user-images.githubusercontent.com/65224852/170023216-7a54be0d-2e21-4b6a-b61d-57f3dd63d4a0.mp4
