@@ -9,7 +9,7 @@ from matplotlib import pyplot as plt
 NBR_ACCOUNTS = 5
 PIXEL_COORD = [(613, 580), (330, 2190), (330, 3148), (850, 3148), (850, 2190)]
 MOVEMENT_KEY = [(Key.f1, Key.f2, Key.f3, 'a'), (Key.f4, Key.f5, Key.f6, 'b'), (Key.f7, Key.f8, Key.f9, 'c'), (Key.f10, Key.f11, Key.f12, 'd')]
-PATH_SCREENSHOT = "C:\\Users\\Seren\\Desktop\\Cours-Informatique\\Projets\\FastAnnotation\\RawData\\"
+PATH_SCREENSHOT = ""
 
 running = True; running2 = False
 InMovement = [0, 0, 0, 0]
