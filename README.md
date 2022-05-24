@@ -39,7 +39,6 @@ The downside is we don't have automated movement, it is implemented only after 3
 * Stop moving when in range of the enemy
 * Taking some steps back when using a Hunter to have the range to use Bows/Guns (won't do that if being attacked)
 
-<p align="center"> <b>Exemple of Decision Tree</b> </p>
 <p align="center">
-<iframe width="560" height="315" src="https://www.youtube.com/embed/IpMdEgo3LgU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![PixelBot Demo 1.12.1](https://www.nvidia.com/content/dam/en-zz/Solutions/glossary/data-science/xgboost/img-2.png)](https://www.youtube.com/embed/IpMdEgo3LgU)
 </p>
