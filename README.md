@@ -43,4 +43,6 @@ The downside is we don't have automated movement, it is implemented only after 3
 
 https://user-images.githubusercontent.com/65224852/170023216-7a54be0d-2e21-4b6a-b61d-57f3dd63d4a0.mp4
 
-*Note that in the new version the druid take a few steps to the right in order to not "stack" with others casters (it's just visualy more interesting)*
+*Note that:*
+* In the new version the druid take a few steps to the right in order to not "stack" with others casters (it's just visualy more interesting)*
+* *I have 4 other screens on my second monitor*
