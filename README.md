@@ -35,13 +35,13 @@ You might want to do this on a private server but it's up to you. (There are goo
 
 The addon for this version is called *GodModeVanilla* (yes, a cringe name :joy:), just copy and paste it inside your ".../WoW/Interface/Addons" folder.
 
-This version is special since we need lesser inputs thanks to the API that allows direct spell casting with CastSpellByName("name_of_the_spell").
+This version is special since we need fewer inputs thanks to the API that allows direct spell casting with CastSpellByName("name_of_the_spell").
 
 The downside is we don't have automated movement, it is implemented only after 3.0.2+, but the program is able to:
 * Follow the leader
 * Rotate characters to face the enemy
 * Stop moving when in range of the enemy
-* Taking some steps back when using a Hunter to have the range to use Bows/Guns (won't do that if being attacked)
+* Take some steps back when using a Hunter to have the range to use Bows/Guns (won't do that if being attacked)
 
 <p align="center"> <b>Exemple of dungeon using PixelBot</b> </p>
 
