@@ -8,7 +8,6 @@ import win32gui, win32con, win32api
 NBR_ACCOUNT = 5
 PIXEL_COORD = [(613, 580), (330, 2190), (330, 3148), (850, 3148), (850, 2190)]
 MOVEMENT_KEY = [win32con.VK_RIGHT, win32con.VK_UP, win32con.VK_DOWN, win32con.VK_LEFT]
-PATH_SCREENSHOT = "C:\\Users\\Seren\\Desktop\\Cours-Informatique\\Projets\\FastAnnotation\\RawData\\"
 
 running = True; running2 = False
 InMovement = [0, 0, 0, 0]
