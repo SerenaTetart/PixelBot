@@ -18,7 +18,7 @@ In the Multibox folder you'll find some usefull tools such as a resizer, and my 
 
 ### Concept:
 
-The concept is very simple, we use the API of the game to generate colors from a pixel based on the situation: for instance if I have to use a spell the pixel will become green with a specific value, then the Python program will read that pixel and simulate the key and then will redistribute all the inputs toward the respective screens.
+The concept is very simple, we use the API of the game to generate colors from a pixel based on the situation: for instance if I have to use a spell the pixel will become green with a specific value, then the Python program will read that pixel and simulate the key toward the respective client.
 
 The combat algorithm is a Decision Tree made by hand: we test multiple conditions iteratively until there is one that is met and we modify the specific color to give an order to the Python program.
 
