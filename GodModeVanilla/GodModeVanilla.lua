@@ -1,6 +1,7 @@
 GodModeVanilla = CreateFrame("Frame", nil, UIParent)
 
 local FollowBool = true local elapsed = 0 local InnerCDLoad = 0 local TradePending = false
+local BreathTimer = -1
 
 Combat = false PrctHp = {} HpRatio = 100 HealTarget = 0
 PrctMana = 100 BlueBool = 0 HpLostTab = {} HpLost = 0 AoEHeal = 0
@@ -792,6 +793,10 @@ function GodModeVanilla:OnUpdate()
 	PrctMana = (UnitMana("player")/UnitManaMax("player"))*100
 	TimerGodMode = UpdateTimer(TimerGodMode)
 	InnerCDLoad = UpdateTimer(InnerCDLoad)
+	if(BreathTimer > 0) then
+		BreathTimer = UpdateTimer(BreathTimer)
+		if((BreathTimer < 15) and (BlueBool ~= 8)) then TimerGodMode = 0.5 BlueBool = 8 end
+	end
 	if(TimerGodMode == 0) then
 		if(TradePending and IsTrading) then
 			if((UnitClass("player") == "Démoniste") and (GetTradePlayerItemInfo(1) ~= nil) and string.find(GetTradePlayerItemInfo(1), "Pierre de soins")) then
@@ -842,6 +847,8 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 		GodModeVanilla.Pixel:SetHeight(15)
 		GodModeVanilla.Pixel:SetTexture(0, 0, 0)
 		print("GodModeVanilla chargé !")
+	elseif(event == "MIRROR_TIMER_START" and arg1 == "BREATH") then BreathTimer = (arg2/1000)
+	elseif(event == "MIRROR_TIMER_STOP" and arg1 == "BREATH") then BreathTimer = -1
 	elseif((InnerCDLoad == 0) and (event == "UPDATE_WORLD_STATES") or (event =="PLAYER_ENTERING_WORLD")) then
 		InnerCDLoad = 60.0
 		local macroIndex = GetMacroIndexByName("God Mode")
@@ -999,4 +1006,6 @@ GodModeVanilla:RegisterEvent("AUTOFOLLOW_BEGIN")
 GodModeVanilla:RegisterEvent("AUTOFOLLOW_END")
 GodModeVanilla:RegisterEvent("MERCHANT_SHOW")
 GodModeVanilla:RegisterEvent("RESURRECT_REQUEST")
+GodModeVanilla:RegisterEvent("MIRROR_TIMER_START")
+GodModeVanilla:RegisterEvent("MIRROR_TIMER_STOP")
 --GodModeVanilla:RegisterAllEvents()
