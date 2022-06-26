@@ -60,7 +60,6 @@ while(running):
                     InMovement[i-1] = 4
                     win32api.PostMessage(hwndACC[i], win32con.WM_KEYDOWN, MOVEMENT_KEY[3], 0)
                 elif(bluePixel == 7): #Jump !
-                    InMovement[i-1] = 5
                     win32api.PostMessage(hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_SPACE, 0)
                     win32api.PostMessage(hwndACC[i], win32con.WM_KEYUP, win32con.VK_SPACE, 0)
             win32api.PostMessage(hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_NEXT, 0)
