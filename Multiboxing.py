@@ -42,7 +42,11 @@ def stopWhile():
 mouse.on_middle_click(stopWhile)
 
 hwndACC = [] #Get windows handle
-listCoord = [(1920-7, 0, 974, 568), (1920+974-23, 0, 974, 568), (1920+974-23, 1080-568+10, 974, 568), (1920-7, 1080-568+10, 974, 568)]
+screenWidth = 1920; screenHeight = 1080; wWidth = 568; wHeight = 974
+listCoord = [(screenWidth-8, 0, wHeight, wWidth)
+            , (screenWidth+wHeight-23, 0, wHeight, wWidth)
+            , (screenWidth+wHeight-23, screenHeight-wWidth+7, wHeight, wWidth)
+            , (screenWidth-8, screenHeight-wWidth+7, wHeight, wWidth)]
 for i in range(NBR_ACCOUNT):
     win32api.WinExec(PATH_WoW)
     hwnd = win32gui.FindWindow(None, "World of Warcraft")
