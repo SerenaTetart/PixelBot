@@ -5,20 +5,30 @@ import time
 
 import win32gui, win32con, win32api
 
+#======= Global Variables =======#
+
 PATH_WoW = "C:\Program Files (x86)\World of Warcraft\WoW1.12.1\WoW.exe" #Put your game path here !
 NBR_ACCOUNT = 5
-#Username/Password of every account
 ACC_INFO = [("", "")
             , ("", "")
             , ("", "")
             , ("", "")
-            , ("", "")]
+            , ("", "")] #Username/Password of every account
 
 PIXEL_COORD = [(613, 580), (330, 2190), (330, 3148), (850, 3148), (850, 2190)]
 MOVEMENT_KEY = [win32con.VK_RIGHT, win32con.VK_UP, win32con.VK_DOWN, win32con.VK_LEFT]
 
 running = True; running2 = False
 InMovement = [0, 0, 0, 0]
+
+hwndACC = [] #Get windows handle
+screenWidth = 1920; screenHeight = 1080; wWidth = 568; wHeight = 974
+listCoord = [(screenWidth-8, 0, wHeight, wWidth)
+            , (screenWidth+wHeight-23, 0, wHeight, wWidth)
+            , (screenWidth+wHeight-23, screenHeight-wWidth+7, wHeight, wWidth)
+            , (screenWidth-8, screenHeight-wWidth+7, wHeight, wWidth)]
+
+#======= Functions =======#
 
 def SendTxt(hwnd, txt):
     #Send text to window
@@ -41,12 +51,8 @@ def stopWhile():
         
 mouse.on_middle_click(stopWhile)
 
-hwndACC = [] #Get windows handle
-screenWidth = 1920; screenHeight = 1080; wWidth = 568; wHeight = 974
-listCoord = [(screenWidth-8, 0, wHeight, wWidth)
-            , (screenWidth+wHeight-23, 0, wHeight, wWidth)
-            , (screenWidth+wHeight-23, screenHeight-wWidth+7, wHeight, wWidth)
-            , (screenWidth-8, screenHeight-wWidth+7, wHeight, wWidth)]
+#======= Main =======#
+            
 for i in range(NBR_ACCOUNT):
     win32api.WinExec(PATH_WoW)
     hwnd = win32gui.FindWindow(None, "World of Warcraft")
