@@ -3,7 +3,7 @@ import numpy as np
 import mouse
 import time
 
-import win32gui, win32con, win32api, win32ui
+import win32gui, win32con, win32api
 
 PATH_WoW = "C:\Program Files (x86)\World of Warcraft\WoW1.12.1\WoW.exe" #Put your game path here !
 NBR_ACCOUNT = 5
