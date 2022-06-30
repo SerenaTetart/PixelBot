@@ -11,8 +11,6 @@ PixelBot is a combination of an addon and a python program that exploits WoW API
 
 This bot works on every versions of the game (1.12.1, 2.4.3, 3.3.5 or even retail) **but** needs some modifications between two versions to work because of the API.
 
-In the Multibox folder you'll find some usefull tools such as a resizer, and my script to simulate inputs.
-
 *All the tests are made on a private server.*
 
 
