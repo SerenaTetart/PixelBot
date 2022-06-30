@@ -5,9 +5,9 @@ import time
 
 import win32gui, win32con, win32api, win32ui
 
-PATH_WoWFolder = "C:\Program Files (x86)\World of Warcraft\WoW1.12.1\WoW.exe" #Put your game path here !
-
+PATH_WoW = "C:\Program Files (x86)\World of Warcraft\WoW1.12.1\WoW.exe" #Put your game path here !
 NBR_ACCOUNT = 5
+
 PIXEL_COORD = [(613, 580), (330, 2190), (330, 3148), (850, 3148), (850, 2190)]
 MOVEMENT_KEY = [win32con.VK_RIGHT, win32con.VK_UP, win32con.VK_DOWN, win32con.VK_LEFT]
 
@@ -33,7 +33,7 @@ mouse.on_middle_click(stopWhile)
 hwndACC = [] #Get windows handle
 listCoord = [(1920-7, 0, 974, 568), (1920+974-23, 0, 974, 568), (1920+974-23, 1080-568+10, 974, 568), (1920-7, 1080-568+10, 974, 568)]
 for i in range(NBR_ACCOUNT):
-    win32api.WinExec(PATH_WoWFolder)
+    win32api.WinExec(PATH_WoW)
     hwnd = win32gui.FindWindow(None, "World of Warcraft")
     print(hwnd)
     hwndACC.append(hwnd)
