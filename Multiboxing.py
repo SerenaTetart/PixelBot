@@ -7,12 +7,23 @@ import win32gui, win32con, win32api
 
 PATH_WoW = "C:\Program Files (x86)\World of Warcraft\WoW1.12.1\WoW.exe" #Put your game path here !
 NBR_ACCOUNT = 5
+#Username/Password of every account
+ACC_INFO = [("", "")
+            , ("", "")
+            , ("", "")
+            , ("", "")
+            , ("", "")]
 
 PIXEL_COORD = [(613, 580), (330, 2190), (330, 3148), (850, 3148), (850, 2190)]
 MOVEMENT_KEY = [win32con.VK_RIGHT, win32con.VK_UP, win32con.VK_DOWN, win32con.VK_LEFT]
 
 running = True; running2 = False
 InMovement = [0, 0, 0, 0]
+
+def SendTxt(hwnd, txt):
+    #Send text to window
+    for c in txt:
+        win32api.PostMessage(hwnd, win32con.WM_CHAR, ord(c), 0)
     
 def stopWhile():
     global running; global running2
@@ -40,6 +51,14 @@ for i in range(NBR_ACCOUNT):
     win32gui.SetWindowText(hwnd, "WoW"+str(i+1))
     if(i > 0): win32gui.MoveWindow(hwnd, listCoord[i-1][0], listCoord[i-1][1], listCoord[i-1][2], listCoord[i-1][3], True)
     else: win32gui.ShowWindow(hwnd, win32con.SW_MAXIMIZE)
+    
+for i in range(NBR_ACCOUNT): #Enter username/password
+    SendTxt(hwndACC[i], ACC_INFO[i][0])
+    win32api.PostMessage(hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_TAB, 0)
+    win32api.PostMessage(hwndACC[i], win32con.WM_KEYUP, win32con.VK_TAB, 0)
+    SendTxt(hwndACC[i], ACC_INFO[i][1])
+    win32api.PostMessage(hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_RETURN, 0)
+    win32api.PostMessage(hwndACC[i], win32con.WM_KEYUP, win32con.VK_RETURN, 0)
 
 while(running):
     time.sleep(0.5)
