@@ -3,12 +3,22 @@ GodModeVanilla = CreateFrame("Frame", nil, UIParent)
 local FollowBool = true local elapsed = 0 local InnerCDLoad = 0 local TradePending = false
 local BreathTimer = -1
 
-Combat = false PrctHp = {} HpRatio = 100 HealTarget = 0
-PrctMana = 100 BlueBool = 0 HpLostTab = {} HpLost = 0 AoEHeal = 0
-CastingInfo = nil IDEquipment = {} TabAggro = {} NbrEnemyAggro = 0
-AATimer = 0 RangedAATimer = 0 TimerGodMode = 0 TankName = "Nihal"
+Combat = false BlueBool = 0 CastingInfo = nil
+IDEquipment = {} TabAggro = {} NbrEnemyAggro = 0 TimerGodMode = 0
 IsFollowing = false IsTrading = false tar = "party"
 
+--Stats Related
+PrctMana = 100 --Pourcentage de Mana du joueur
+PrctHp = {} --Liste des pourcentages de PV restant, index = ordre des joueurs
+HealTargetTab = {} --Liste d'index de joueur par ordre croissant par rapport au pourcentage de PV restant
+HpLostTab = {} --Liste des PV perdu, index = ordre des joueurs
+AoEHeal = 0 --Nombre d'alliés sous le seuil de 60% PV
+AATimer = 0 RangedAATimer = 0 --CD des attaques automatiques
+
+--Params
+TankName = "Nihal"
+
+--Textures
 DrinkingTexture = "Interface\\Icons\\INV_Drink_07"
 
 --======================================================================--
@@ -60,14 +70,21 @@ local function ClassifyHeal()
 			HpLostTab[i] = 0
 		end
 	end
-	HpRatio = PrctHp[0]
-	HealTarget = 0
-	HpLost = HpLostTab[0]
-	for i= 1, GetNumGroupMembers() do
-		if(HpRatio > PrctHp[i]) then
-			HpRatio = PrctHp[i]
-			HealTarget = i
-			HpLost = HpLostTab[i]
+	local tmpTab = {}
+	for i= 0, GetNumGroupMembers() do
+		tmpTab[i] = PrctHp[i]
+		HealTargetTab[i] = i
+	end
+	for i= GetNumGroupMembers(), 0, -1 do
+		for y= 0, i-1 do
+			if(tmpTab[y] > tmpTab[y+1]) then
+				local tmp = tmpTab[y]
+				tmpTab[y] = tmpTab[y+1]
+				tmpTab[y+1] = tmp
+				tmp = HealTargetTab[y]
+				HealTargetTab[y] = HealTargetTab[y+1]
+				HealTargetTab[y+1] = tmp
+			end
 		end
 	end
 end
@@ -246,8 +263,8 @@ function HasHPotion()
 end
 
 function GetHPotionCD()
-	ListID = {118, 858, 929, 1710, 3928, 13446}
-	for _,ID in ipairs(ListID) do
+	local listID = {118, 858, 929, 1710, 3928, 13446}
+	for _,ID in ipairs(listID) do
 		if(GetItemCount(ID) > 0) then return GetItemCooldownDuration(ID) end
 	end
 	return 99999
@@ -278,8 +295,8 @@ function HasMPotion()
 end
 
 function GetMPotionCD()
-	ListID = {2455, 3385, 3827, 6149, 13443, 13444}
-	for _,ID in ipairs(ListID) do
+	local listID = {2455, 3385, 3827, 6149, 13443, 13444}
+	for _,ID in ipairs(listID) do
 		if(GetItemCount(ID) > 0) then return GetItemCooldownDuration(ID) end
 	end
 	return 99999
@@ -307,8 +324,8 @@ function HasHealthstone()
 end
 
 function GetHealthstoneCD()
-	ListID = {5512, 19004, 19005, 5511, 19006, 19007, 5509, 19008, 19009, 5510, 19010, 19011, 9421, 19012, 19013}
-	for _,ID in ipairs(ListID) do
+	local listID = {5512, 19004, 19005, 5511, 19006, 19007, 5509, 19008, 19009, 5510, 19010, 19011, 9421, 19012, 19013}
+	for _,ID in ipairs(listID) do
 		if(GetItemCount(ID) > 0) then return GetItemCooldownDuration(ID) end
 	end
 	return 99999
@@ -551,6 +568,28 @@ function IsGroupFeared()
 	return false
 end
 
+function IsCharmed(target)
+	--Retourne si la cible est fear
+	local tab = {}
+	tab[1] = {"Interface\\Icons\\Spell_Shadow_GatherShadows", "Shadowfang Keep"} --Arugal's charm
+	tab[2] = {"Interface\\Icons\\Spell_Shadow_ShadowWordDominate", ""} --Mind control
+	tab[3] = {"Interface\\Icons\\Spell_Shadow_MindSteal", ""} --Succubus' seduction
+	for i= 1, 16 do
+		local debuff = UnitDebuff(target, i)
+		for _,statusTexture in ipairs(tab) do
+			if(debuff == statusTexture[0] and (statusTexture[1] == "" or statusTexture[1] == GetRealZoneText())) then return true end
+		end
+	end
+	return false
+end
+
+function IsGroupCharmed()
+	for i= 1, GetNumGroupMembers() do
+		if(IsCharmed(tar..i)) then return true end
+	end
+	return false
+end
+
 --======================================================================--
 --========================    Spells/Actions    ========================--
 --======================================================================--
@@ -676,13 +715,13 @@ end
 function GetHealer()
 	--Retourne l'indice du healer
 	for i= 1, GetNumGroupMembers() do
-		if(UnitClass(tar..i) == "Chaman") then return i end
+		if(UnitClass(tar..i) == "Shaman") then return i end
 	end
 	for i= 1, GetNumGroupMembers() do
-		if(UnitClass(tar..i) == "Prêtre") then return i end
+		if(UnitClass(tar..i) == "Priest") then return i end
 	end
 	for i= 1, GetNumGroupMembers() do
-		if(UnitClass(tar..i) == "Druide") then return i end
+		if(UnitClass(tar..i) == "Druid") then return i end
 	end
 	for i= 1, GetNumGroupMembers() do
 		if(UnitClass(tar..i) == "Paladin") then return i end
@@ -700,14 +739,16 @@ end
 
 function GetPlayerRole()
 	local _,_,bonusStr = UnitStat("player", 1) local _,_,bonusAgi = UnitStat("player", 2) local _,_,bonusIntel = UnitStat("player", 4)
-	if(bonusIntel > bonusStr and bonusIntel > bonusAgi) then return 1 --Heal
+	if(UnitName("player") == TankName) then return 2 --Tank
+	elseif(UnitName("player") == "Saelwyn") then return 3
+	elseif(bonusIntel > bonusStr and bonusIntel > bonusAgi) then return 1 --Heal
 	elseif(IsShieldEquipped()) then return 2 --Tank
 	else return 3 end --Dps
 end
 
 function UnitIsCaster(target)
 	--Retourne si la cible est un caster
-	if((UnitClass(target) == "Prêtre") or (UnitClass(target) == "Démoniste") or (UnitClass(target) == "Mage") or (UnitClass(target) == "Chaman")) then
+	if((UnitClass(target) == "Priest") or (UnitClass(target) == "Warlock") or (UnitClass(target) == "Mage") or (UnitClass(target) == "Shaman")) then
 		return true
 	else
 		return false
@@ -717,9 +758,9 @@ end
 function UnitIsRanged(target)
 	--Retourne si la cible a une classe à distance
 	local playerRole = GetPlayerRole()
-	if((target == "player") and ((UnitClass(target) == "Prêtre") or (UnitClass(target) == "Démoniste") or (UnitClass(target) == "Mage") or ((UnitClass(target) == "Druide") and (playerRole < 3)) or ((UnitClass(target) == "Chaman") and (playerRole < 3)) or ((UnitClass(target) == "Paladin") and (playerRole == 1)) or (UnitClass(target) == "Chasseur"))) then
+	if((target == "player") and ((UnitClass(target) == "Priest") or (UnitClass(target) == "Warlock") or (UnitClass(target) == "Mage") or ((UnitClass(target) == "Druid") and (playerRole < 3)) or ((UnitClass(target) == "Shaman") and (playerRole < 3)) or ((UnitClass(target) == "Paladin") and (playerRole == 1)) or (UnitClass(target) == "Hunter"))) then
 		return true
-	elseif((target ~= "player") and ((UnitClass(target) == "Prêtre") or (UnitClass(target) == "Démoniste") or (UnitClass(target) == "Mage") or (UnitClass(target) == "Druide") or (UnitClass(target) == "Chaman") or (UnitClass(target) == "Chasseur"))) then
+	elseif((target ~= "player") and ((UnitClass(target) == "Priest") or (UnitClass(target) == "Warlock") or (UnitClass(target) == "Mage") or (UnitClass(target) == "Druid") or (UnitClass(target) == "Shaman") or (UnitClass(target) == "Hunter"))) then
 		return true
 	else
 		return false
@@ -777,7 +818,7 @@ function IsShieldEquipped()
 	local _,_,id = string.find(GetInventoryItemLink("player",GetInventorySlotInfo("SecondaryHandSlot")) or "","(item:%d+:%d+:%d+:%d+)")
 	if(id ~= nil) then
 		local _,_,_,_,itemType = GetItemInfo(id)
-		return (itemType=="Armure")
+		return (itemType=="Armor")
 	else return false end
 end
 
@@ -799,7 +840,7 @@ function GodModeVanilla:OnUpdate()
 	end
 	if(TimerGodMode == 0) then
 		if(TradePending and IsTrading) then
-			if((UnitClass("player") == "Démoniste") and (GetTradePlayerItemInfo(1) ~= nil) and string.find(GetTradePlayerItemInfo(1), "Pierre de soins")) then
+			if((UnitClass("player") == "Warlock") and (GetTradePlayerItemInfo(1) ~= nil) and string.find(GetTradePlayerItemInfo(1), "Healthstone")) then
 				UpdateHealthstoneTab()
 			end
 			AcceptTrade() TradePending = false ClearCursor()
@@ -808,18 +849,20 @@ function GodModeVanilla:OnUpdate()
 	end
 	AATimer = UpdateTimer(AATimer); RangedAATimer = UpdateTimer(RangedAATimer)
 	  --Fonctions
-	if(UnitClass("player") == "Chaman" and (GetPlayerRole() < 3)) then
+	if(UnitClass("player") == "Shaman" and (GetPlayerRole() < 3)) then
 		if(UnitName("player") == "Layera") then Shaman_DpsDist_OnUpdate(elapsed)
 		else Shaman_Heal_OnUpdate(elapsed) end
-	elseif(UnitClass("player") == "Chaman" and (GetPlayerRole() == 3)) then
+	elseif(UnitClass("player") == "Shaman" and (GetPlayerRole() == 3)) then
 		Shaman_Dps_OnUpdate(elapsed)
-	elseif(UnitClass("player") == "Chasseur") then
+	elseif(UnitClass("player") == "Hunter") then
 		Hunter_OnUpdate(elapsed)
-	elseif(UnitClass("player") == "Druide") then
+	elseif(UnitClass("player") == "Druid") then
 		Druid_OnUpdate(elapsed)
-	elseif(UnitClass("player") == "Démoniste") then
+	elseif(UnitClass("player") == "Mage") then
+		Mage_OnUpdate(elapsed)
+	elseif(UnitClass("player") == "Warlock") then
 		Warlock_OnUpdate(elapsed)
-	elseif(UnitClass("player") == "Guerrier") then
+	elseif(UnitClass("player") == "Warrior") then
 		Warrior_OnUpdate(elapsed)
 	elseif(UnitClass("player") == "Paladin" and (GetPlayerRole() == 2)) then
 		Paladin_Tank_OnUpdate(elapsed)
@@ -827,9 +870,9 @@ function GodModeVanilla:OnUpdate()
 		Paladin_Heal_OnUpdate(elapsed)
 	elseif(UnitClass("player") == "Paladin") then
 		Paladin_Dps_OnUpdate(elapsed)
-	elseif(UnitClass("player") == "Prêtre") then
+	elseif(UnitClass("player") == "Priest") then
 		Priest_OnUpdate(elapsed)
-	elseif(UnitClass("player") == "Voleur") then
+	elseif(UnitClass("player") == "Rogue") then
 		--Rogue_OnUpdate(elapsed)
 	end
 end
@@ -853,97 +896,95 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 		InnerCDLoad = 60.0
 		local macroIndex = GetMacroIndexByName("God Mode")
 		local _,_,macroBody = GetMacroInfo(macroIndex)
-		if(UnitClass("player") == "Chaman" and (GetPlayerRole() < 3)) then
+		if(UnitClass("player") == "Shaman" and (GetPlayerRole() < 3)) then
 			if(UnitName("player") == "Layera") then MakeCombatMacro(macroIndex, macroBody, "/run ShamanHeal_DpsDist()")
 			else MakeCombatMacro(macroIndex, macroBody, "/run ShamanHeal_Heal()") end
 			IDEquipment = GetEquipmentID()
 			Shaman_OnLoad()
-		elseif(UnitClass("player") == "Chaman" and (GetPlayerRole() == 3)) then
+		elseif(UnitClass("player") == "Shaman" and (GetPlayerRole() == 3)) then
 			MakeCombatMacro(macroIndex, macroBody, "/run ShamanHeal_Dps()")
 			Shaman_OnLoad()
-		elseif(UnitClass("player") == "Chasseur") then
+		elseif(UnitClass("player") == "Hunter") then
 			MakeCombatMacro(macroIndex, macroBody, "/run HunterDps()")
-			Hunter_OnLoad()
-		elseif(UnitClass("player") == "Druide") then
+		elseif(UnitClass("player") == "Druid") then
 			MakeCombatMacro(macroIndex, macroBody, "/run DruidHeal()")
 			IDEquipment = GetEquipmentID()
 			Druid_OnLoad()
-		elseif(UnitClass("player") == "Démoniste") then
+		elseif(UnitClass("player") == "Mage") then
+			MakeCombatMacro(macroIndex, macroBody, "/run MageDps()")
+		elseif(UnitClass("player") == "Warlock") then
 			MakeCombatMacro(macroIndex, macroBody, "/run WarlockDps()")
-		elseif(UnitClass("player") == "Guerrier") then
+		elseif(UnitClass("player") == "Warrior") then
 			MakeCombatMacro(macroIndex, macroBody, "/run WarriorDps()")
-			Warrior_OnLoad()
 		elseif(UnitClass("player") == "Paladin" and (GetPlayerRole() == 2)) then
 			MakeCombatMacro(macroIndex, macroBody, "/run PaladinHeal_Tank()")
-			Paladin_Tank_OnLoad()
 		elseif(UnitClass("player") == "Paladin" and (GetPlayerRole() == 1)) then
 			MakeCombatMacro(macroIndex, macroBody, "/run PaladinHeal_Heal()")
-			Paladin_Heal_OnLoad()
 		elseif(UnitClass("player") == "Paladin") then
 			MakeCombatMacro(macroIndex, macroBody, "/run PaladinHeal_Dps()")
-			Paladin_Dps_OnLoad()
-		elseif(UnitClass("player") == "Prêtre") then
+		elseif(UnitClass("player") == "Priest") then
 			MakeCombatMacro(macroIndex, macroBody, "/run PriestHeal()")
 			IDEquipment = GetEquipmentID()
 			Priest_OnLoad()
 		end
 	elseif(event == "PLAYER_REGEN_ENABLED") then
 		Combat = false TabAggro = {} NbrEnemyAggro = 0
-		print("GodModeVanilla: Combat terminé")
+		print("GodModeVanilla: Combat ended")
 	elseif(event == "PLAYER_REGEN_DISABLED") then
 		Combat = true
-		print("GodModeVanilla: Combat engagé")
+		print("GodModeVanilla: Combat engaged")
 	elseif(event == "UI_ERROR_MESSAGE") then
-		if(((arg1 == "Les cibles doivent être devant vous") or (arg1 == "Vous ne faites pas face à la bonne direction !")) and (BlueBool ~= 3)) then
-			if((GetTank() ~= "") and CheckInteractDistance(GetTank(), 4) and not (GetPlayerRole() == 2)) then
+		if(((arg1 == "Target needs to be in front of you") or (arg1 == "You are facing the wrong way!")) and (BlueBool ~= 3)) then
+			if((GetTank() ~= "") and CheckInteractDistance(GetTank(), 4)) then
 				if(not IsFollowing) then FollowByName(TankName) end
-			else TimerGodMode = 0.1 BlueBool = 3 end
-		elseif(((arg1 == "Hors de portée.") or (arg1 == "Vous êtes trop loin !") or (arg1 == "Cible hors du champ de vision")) and (BlueBool ~= 4)) then
-			if(not IsFollowing and not UnitIsRanged("player") and CheckInteractDistance(GetTank(), 4)) then FollowByName(TankName)
-			elseif((arg1 == "Hors de portée.") or (arg1 == "Cible hors du champ de vision")) then TimerGodMode = 0.5 BlueBool = 4 end
-		elseif(string.find(arg1, "pas assez d'emplacements libres")) then
+			else TimerGodMode = 0.2 BlueBool = 3 end
+		elseif(((arg1 == "Out of range.") or (arg1 == "You are too far away!" and not UnitIsRanged("player")) or (arg1 == "Target not in line of sight")) and (BlueBool ~= 4)) then
+			if((GetTank() ~= "") and CheckInteractDistance(GetTank(), 4)) then
+				if(not IsFollowing) then FollowByName(TankName) end
+			elseif((arg1 == "Out of range.") or (arg1 == "Target not in line of sight")) then TimerGodMode = 0.5 BlueBool = 4 end
+		elseif(string.find(arg1, "Inventory is full.")) then
 			CloseTrade()
 		end
 	elseif(event == "SPELLCAST_START" or event == "SPELLCAST_CHANNEL_START") then
 		--arg1: Spell name | arg2: Cast time (ms)
 		CastingInfo = arg1
 	elseif(event == "SPELLCAST_STOP" or event == "SPELLCAST_INTERRUPTED" or event == "SPELLCAST_FAILED" or event == "SPELLCAST_CHANNEL_STOP") then
-		if(UnitClass("player") == "Chaman" and event == "SPELLCAST_STOP") then
+		if(UnitClass("player") == "Shaman" and event == "SPELLCAST_STOP") then
 			Shaman_OnCast(CastingInfo)
-		elseif(UnitClass("player") == "Démoniste" and event == "SPELLCAST_STOP") then
+		elseif(UnitClass("player") == "Warlock" and event == "SPELLCAST_STOP") then
 			Warlock_OnCast(CastingInfo)
 		end
 		CastingInfo = nil
 	elseif(event == "CHAT_MSG_COMBAT_CREATURE_VS_SELF_HITS") then
-		local enemyName = ""; tmp = string.find(arg1, "vous")
-		if(tmp) then enemyName = string.sub(arg1, 0, tmp-2) UpdateTabAggro(enemyName, true)
-		else enemyName = string.sub(arg1, 0, string.find(arg1, "touche")-2) UpdateTabAggro(enemyName, false) end
+		local enemyName = string.sub(arg1, 0, (string.find(arg1, "hits") or string.find(arg1, "crits"))-2)
+		if(string.find(arg1, "you")) then UpdateTabAggro(enemyName, true)
+		else UpdateTabAggro(enemyName, false) end
 	elseif(event == "CHAT_MSG_COMBAT_CREATURE_VS_SELF_MISSES") then
-		local enemyName = string.sub(arg1, 0, (string.find(arg1, "attaque") or string.find(arg1, "vous"))-2)
+		local enemyName = string.sub(arg1, 0, (string.find(arg1, "attacks") or string.find(arg1, "misses"))-2)
 		UpdateTabAggro(enemyName, true)
-		if(string.find(arg1, "parez")) then AATimer = AATimer - UnitAttackSpeed("player")*0.4 end
+		if(string.find(arg1, "parry")) then AATimer = AATimer - UnitAttackSpeed("player")*0.4 end
 	elseif(event == "CHAT_MSG_COMBAT_CREATURE_VS_PARTY_HITS") then
-		local enemyName = string.sub(arg1, 0, (string.find(arg1, "touche") or string.find(arg1, "inflige"))-2)
+		local enemyName = string.sub(arg1, 0, (string.find(arg1, "hits") or string.find(arg1, "crits"))-2)
 		UpdateTabAggro(enemyName, false)
 	elseif(event == "CHAT_MSG_COMBAT_CREATURE_VS_PARTY_MISSES") then
-		local enemyName = string.sub(arg1, 0, (string.find(arg1, "attaque") or string.find(arg1, "manque"))-2)
+		local enemyName = string.sub(arg1, 0, (string.find(arg1, "attacks") or string.find(arg1, "misses"))-2)
 		UpdateTabAggro(enemyName, false)
 	elseif(event == "CHAT_MSG_COMBAT_HOSTILE_DEATH") then PopTabAggro(arg1)
 	elseif(event == "CHAT_MSG_COMBAT_SELF_HITS" or event == "CHAT_MSG_COMBAT_SELF_MISSES") then
 		AATimer = UnitAttackSpeed("player")
 	elseif(event == "CHAT_MSG_SPELL_SELF_DAMAGE") then
-		if(string.find(arg1, "Tir automatique")) then RangedAATimer = UnitRangedDamage("player")
-		elseif(string.find(arg1, "Frappe héroïque")) then AATimer = UnitAttackSpeed("player")
-		elseif(string.find(arg1, "Enchaînement")) then AATimer = UnitAttackSpeed("player") end
+		if(string.find(arg1, "Auto Shot")) then RangedAATimer = UnitRangedDamage("player")
+		elseif(string.find(arg1, "Heroic Strike")) then AATimer = UnitAttackSpeed("player")
+		elseif(string.find(arg1, "Cleave")) then AATimer = UnitAttackSpeed("player") end
 	elseif(event == "CHAT_MSG_SPELL_HOSTILEPLAYER_BUFF") then
-		if((UnitClass("player") == "Démoniste") and string.find(arg1, "Pierre de soin")) then
+		if((UnitClass("player") == "Warlock") and string.find(arg1, "Healthstone")) then
 			for i= 1, GetNumGroupMembers() do
 				if(string.find(arg1, UnitName(tar..i))) then UpdateHealthstoneTab(i) end
 			end
 		end
 	elseif(event == "QUEST_DETAIL") then AcceptQuest()
 	elseif(event == "TRADE_SHOW") then IsTrading = true
-	elseif(event == "TRADE_TARGET_ITEM_CHANGED" and (GetTradeTargetItemLink(arg1) ~= nil) and string.find(GetTradeTargetItemLink(arg1), "Pierre de soins")) then TimerGodMode = 0.5 TradePending = true
+	elseif(event == "TRADE_TARGET_ITEM_CHANGED" and (GetTradeTargetItemLink(arg1) ~= nil) and string.find(GetTradeTargetItemLink(arg1), "Healthstone")) then TimerGodMode = 0.5 TradePending = true
 	elseif(event == "TRADE_ACCEPT_UPDATE" and arg1 == 0) then TimerGodMode = 0.5 TradePending = true
 	elseif(event == "TRADE_CLOSED") then IsTrading = false TradePending = false
 	elseif(event == "AUTOFOLLOW_BEGIN") then IsFollowing = true
@@ -955,19 +996,19 @@ end
 SLASH_GMVANILLA1 = "/gmvanilla.togglefollow"
 local function handler(msg, editBox)
 	if(msg == "ON") then
-		print("GodModeVanilla: Follow activé")
+		print("GodModeVanilla: Follow activated")
 		FollowBool = true
 	elseif(msg == "OFF") then
-		print("GodModeVanilla: Follow désactivé")
+		print("GodModeVanilla: Follow disabled")
 		FollowBool = false
 		TimerGodMode = 0.5 BlueBool = 6
 	elseif(msg == "") then
 		if(FollowBool == true) then
-			print("GodModeVanilla: Follow désactivé")
+			print("GodModeVanilla: Follow disabled")
 			FollowBool = false
 			TimerGodMode = 0.5 BlueBool = 6
 		else
-			print("GodModeVanilla: Follow activé")
+			print("GodModeVanilla: Follow activated")
 			FollowBool = true
 		end
 	end

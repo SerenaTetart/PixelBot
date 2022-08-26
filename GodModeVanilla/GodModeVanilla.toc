@@ -8,6 +8,7 @@ Database.lua
 
 Druid.lua
 Hunter.lua
+Mage.lua
 PaladinTank.lua
 PaladinHeal.lua
 PaladinDps.lua
