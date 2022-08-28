@@ -230,7 +230,7 @@ end
 
 function Paladin_Dps_OnUpdate(elapsed)
 	FollowMultibox(TankName)
-	GodModeVanilla.Pixel:SetTexture(0, 0, 0)
+	GodModeVanilla.Pixel:SetTexture(0, 0, 0.003921*BlueBool)
 end
 
 function Paladin_Dps_OnLoad()  --Map Update

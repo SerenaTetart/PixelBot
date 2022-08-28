@@ -230,8 +230,8 @@ function GetEquipSlotID(item_texture)
 end
 
 function HasDrink()
-	local listID = {159, 1179, 2288, 1205, 2136, 9451, 4791, 1708, 10841, 1645, 8077
-		, 13724, 8766, 8078, 19301, 8079, 20031, 18300}
+	local listID = {159, 1179, 1205, 1645, 1708, 2136, 2288, 3772, 4791, 5350, 8077
+		, 8078, 8079, 8766, 9451, 10841, 13724, 18300, 19301, 20031}
 	for _, ID in ipairs(listID) do
 		if(GetItemCount(ID) > 0) then return ID end
 	end
@@ -631,12 +631,13 @@ function GetSpellID(spell_name)
 	return 0, 0
 end
 
-function GetSlot(spell_name)
+function GetSlot(spell_name, slot_type)
+	local slot_type = slot_type or "SPELL"
 	local slot = 0
 	local spellID = GetSpellID(spell_name)
 	if(spellID > 0) then
 		for i= 1, 120 do
-			if((HasAction(i) ~= nil) and (GetSpellTexture(spellID, BOOKTYPE_SPELL) == GetActionTexture(i))) then
+			if((HasAction(i) ~= nil) and (GetSpellTexture(spellID, BOOKTYPE_SPELL) == GetActionTexture(i)) and ((not IsConsumableAction(i) and slot_type == "SPELL") or (IsConsumableAction(i) and slot_type == "ITEM"))) then
 				slot = i
 				return slot
 			end
@@ -890,8 +891,8 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 		GodModeVanilla.Pixel:SetHeight(15)
 		GodModeVanilla.Pixel:SetTexture(0, 0, 0)
 		print("GodModeVanilla chargé !")
-	elseif(event == "MIRROR_TIMER_START" and arg1 == "BREATH") then BreathTimer = (arg2/1000)
-	elseif(event == "MIRROR_TIMER_STOP" and arg1 == "BREATH") then BreathTimer = -1
+	elseif(event == "MIRROR_TIMER_START" and arg1 == "BREATH") then BreathTimer = (arg2/1000) if(BreathTimer < 15) then FollowBool = false end
+	elseif(event == "MIRROR_TIMER_STOP" and arg1 == "BREATH") then BreathTimer = -1 FollowBool = true
 	elseif((InnerCDLoad == 0) and (event == "UPDATE_WORLD_STATES") or (event =="PLAYER_ENTERING_WORLD")) then
 		InnerCDLoad = 60.0
 		local macroIndex = GetMacroIndexByName("God Mode")

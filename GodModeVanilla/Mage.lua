@@ -1,5 +1,6 @@
 --Variables
 local listRank = {"Ruby", "Citrine", "Jade", "Agate"}
+local DrinkingBuff = ""
 
 --Texture
 ArcaneIntellectTexture = "Interface\\Icons\\Spell_Holy_MagicalSentry"
@@ -55,6 +56,12 @@ function MageDps()
 		elseif(not Combat and IsSpellReady(RankConjureMana) and not HasManaStone()) then
 			--Conjure Mana (stone)
 			UseAction(GetSlot(RankConjureMana))
+		elseif(IsSpellReady("Conjure Water", true) and not Combat and (HasDrink() == 0)) then
+			--Conjure Water
+			UseAction(GetSlot("Conjure Water"))
+		elseif(not IsFollowing and not Combat and not DrinkingBuff and (PrctMana < 33) and (HasDrink() > 0)) then
+			--Drink
+			PlaceItem(120, HasDrink()) UseAction(120)
 		elseif(IsSpellReady("Ice Barrier") and not IceBarrierBuff) then
 			--Ice Barrier
 			UseAction(GetSlot("Ice Barrier"))
@@ -84,6 +91,9 @@ function MageDps()
 			elseif(IsSpellReady("Cone of Cold") and CheckInteractDistance("target", 2) and UnitPlayerControlled("target")) then
 				--Cone of Cold
 				UseAction(GetSlot("Cone of Cold"))
+			elseif(IsSpellReady("Fire Blast") and (IsFollowing or BlueBool > 0)) then
+				--Fire Blast (Movement)
+				UseAction(GetSlot("Fire Blast"))
 			elseif(IsSpellReady("Frostbolt")) then
 				--Frostbolt
 				UseAction(GetSlot("Frostbolt"))
@@ -99,7 +109,9 @@ function MageDps()
 end
 
 function Mage_OnUpdate(elapsed)
-	FollowMultibox("Saelwyn")
+	DrinkingBuff = GetUnitBuff("player", DrinkingTexture)
+	if(((PrctMana > 33) or (HasDrink() == 0)) and ((not DrinkingBuff) or (PrctMana > 80))) then FollowMultibox("Saelwyn") end
+	if(DrinkingBuff and (PrctMana > 80)) then BlueBool = 4 end
 	GodModeVanilla.Pixel:SetTexture(0, 0, 0.003921*BlueBool)
 end
 

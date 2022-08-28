@@ -1,12 +1,11 @@
-local LastTarget = 0
-
 --Variables
+local LastTarget = 0
+local DrinkingBuff = ""
+
 HealingTouchRank = 1 HealingTouchValue = {} HealingTouchLevel = {1, 8, 14, 20, 26, 32, 38, 44, 50, 56, 60}
 RejuvenationRank = 1 RejuvenationValue = {} RejuvenationLevel = {4, 10, 16, 22, 28, 34, 40, 46, 52, 58, 60}
 RegrowthRank = 1 RegrowthValue = {} RegrowthLevel = {12, 18, 24, 30, 36, 42, 48, 54, 60}
 TranquilityRank = 1 TranquilityValue = {} TranquilityLevel = {30, 40, 50, 60}
-
-local DrinkingBuff = ""
 
 --Texture
 MarkWildTexture = "Interface\\Icons\\Spell_Nature_Regeneration"
