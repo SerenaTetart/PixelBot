@@ -20,11 +20,6 @@ The concept is very simple, we use the API of the game to generate colors from a
 
 The combat algorithm is a Decision Tree made by hand: we test multiple conditions iteratively until there is one that is met and we modify the specific color to give an order to the Python program.
 
-<p align="center"> <b>Exemple of Decision Tree</b> </p>
-<p align="center">
-<img src="https://www.nvidia.com/content/dam/en-zz/Solutions/glossary/data-science/xgboost/img-2.png">
-</p>
-
 ## Requirements
 
 You might want to do this on a private server but it's up to you. (There are good repacks on internet which are servers precompiled in C++)
