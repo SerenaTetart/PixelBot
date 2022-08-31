@@ -1,0 +1,6 @@
+pywin32
+pillow
+pynput
+numpy
+mouse
+playsound
