@@ -3,8 +3,6 @@ from tkinter import messagebox, filedialog
 from playsound import playsound #1.2.2 !!
 from pynput import keyboard
 from tkinter import ttk
-#import multiprocessing
-#from gtts import gTTS
 import tkinter as tk
 import numpy as np
 import mouse
@@ -247,14 +245,8 @@ class Interface(tk.Tk):
         
     def launch_repair_clients(self):
         #Launch or Repair clients
-        """global background_music"""
+        global background_music
         if self.LaunchRepair_Button.config('text')[-1] == 'Launch':
-            """text = "Let's go!"
-            tts = gTTS(text=text, lang='en', tld='com.au', slow=False)
-            os.remove("tmp.mp3")
-            tts.save("tmp.mp3")
-            playsound('tmp.mp3', False)
-            background_music.terminate()"""
             self.LaunchRepair_Button.config(text='Repair')
             self.NBR_ACCOUNT = int(self.numberClientsList.get())
             self.adapt_listCoord()
@@ -272,6 +264,7 @@ class Interface(tk.Tk):
                 self.send_client_txt(self.hwndACC[i], self.ACC_Info[i][1])
                 win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_RETURN, 0)
                 win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, win32con.VK_RETURN, 0)
+            background_music.terminate()
         else: #Repair
             for i in range(self.NBR_ACCOUNT):
                 if(not win32gui.IsWindow(self.hwndACC[i])):
@@ -357,22 +350,9 @@ class Interface(tk.Tk):
                     win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, win32con.VK_NEXT, 0)
                 time.sleep(0.3)
         self.after(300, self.run_script)
-    
-"""def play_background():
-    playsound('assets/music_theme.mp3', True)"""
         
     #Main :
 if __name__== "__main__" :
-
-    """text = "Error cringe detected!"
-    tts = gTTS(text=text, lang='en', tld='com.au', slow=False)
-    tts.save("tmp.mp3")
-    background_music = multiprocessing.Process(name="playsound", target=play_background)
-    background_music.daemon = True
-    background_music.start()
-    time.sleep(2)
-    playsound('tmp.mp3', False)"""
-    
     interface = Interface()
     
     mouse.on_middle_click(interface.stopWhile)
