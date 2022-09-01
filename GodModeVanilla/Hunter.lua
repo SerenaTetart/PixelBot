@@ -13,7 +13,7 @@ function HunterDps()
 	if(CastingInfo == nil and not UnitIsDeadOrGhost("player")) then
 		local TrueshotAuraBuff = GetUnitBuff("player", TrueshotAuraTexture)
 		local HasAggro = PlayerHasAggro()
-		if(IsInGroup()) then AssistUnit(GetTank()) if((UnitCanAttack("player", "target") == nil) and Combat) then CastSpellByName("Attack") end end
+		if(IsInGroup()) then AssistUnit(GetTank()) end
 		if(IsSpellReady("Aspect of the Hawk") and not AotHawkBuff and not Combat) then
 			--Aspect of the Hawk
 			CastSpellByName("Aspect of the Hawk")

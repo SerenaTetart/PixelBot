@@ -8,8 +8,7 @@ BlindTexture = "Interface\\Icons\\Spell_Shadow_MindSteal"
 
 function RogueDps()
 	if(CastingInfo == nil) then
-		if(Combat and UnitCanAttack("player", "target") and UnitAffectingCombat("target") == nil) then ClearTarget()
-		elseif(Combat and ((UnitCanAttack("player", "target") == nil) or (CheckInteractDistance("target", 4) == nil))) then TargetNearestEnemy() end
+		if(IsInGroup()) then AssistUnit(GetTank()) end
 		local _,_,Stealthing = GetShapeshiftFormInfo(1)
 		if((UnitCanAttack("player", "target") == nil) and Stealthing) then
 			--Stop Stealth
@@ -28,7 +27,7 @@ function RogueDps()
 			local GougeDebuff = GetUnitDebuff("target", GougeTexture)
 			local BlindDebuff = GetUnitDebuff("target", BlindTexture)
 			if((IsCurrentAction(GetSlot("Attack")) == nil) and not Stealthing and not GougeDebuff and not BlindDebuff) then UseAction(GetSlot("Attack")) end
-			if(IsSpellReady("Stealth") and not Stealthing) then
+			if(IsSpellReady("Stealth") and IsPlayerSpell("Cheap Shot") and not Stealthing) then
 				--Stealth
 				CastSpellByName("Stealth")
 			elseif(IsSpellReady("Cheap Shot")) then

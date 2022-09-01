@@ -16,7 +16,7 @@ AoEHeal = 0 --Nombre d'alliés sous le seuil de 60% PV
 AATimer = 0 RangedAATimer = 0 --CD des attaques automatiques
 
 --Params
-TankName = "Nihal"
+ListTankName = {"Nihal", "Sapphire"}
 
 --Textures
 DrinkingTexture = "Interface\\Icons\\INV_Drink_07"
@@ -27,6 +27,13 @@ DrinkingTexture = "Interface\\Icons\\INV_Drink_07"
 
 function print(msg)
 	DEFAULT_CHAT_FRAME:AddMessage(tostring(msg))
+end
+
+function ValueInArray(value, array)
+	for _, v in ipairs(array) do
+		if(value == v) then return true end
+	end
+	return false
 end
 
 function GetNumGroupMembers()
@@ -733,14 +740,14 @@ end
 function GetTank()
 	--Retourne l'indice du tank
 	for i= 1, GetNumGroupMembers() do
-		if(UnitName(tar..i) == TankName) then return tar..i end
+		if(ValueInArray(UnitName(tar..i), ListTankName)) then return tar..i end
 	end
 	return ""
 end
 
 function GetPlayerRole()
 	local _,_,bonusStr = UnitStat("player", 1) local _,_,bonusAgi = UnitStat("player", 2) local _,_,bonusIntel = UnitStat("player", 4)
-	if(UnitName("player") == TankName) then return 2 --Tank
+	if(ValueInArray(UnitName("player"), ListTankName)) then return 2 --Tank
 	elseif(UnitName("player") == "Saelwyn") then return 3
 	elseif(bonusIntel > bonusStr and bonusIntel > bonusAgi) then return 1 --Heal
 	elseif(IsShieldEquipped()) then return 2 --Tank
@@ -938,13 +945,14 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 		Combat = true
 		print("GodModeVanilla: Combat engaged")
 	elseif(event == "UI_ERROR_MESSAGE") then
+		local tankTar = GetTank()
 		if(((arg1 == "Target needs to be in front of you") or (arg1 == "You are facing the wrong way!")) and (BlueBool ~= 3)) then
-			if((GetTank() ~= "") and CheckInteractDistance(GetTank(), 4)) then
-				if(not IsFollowing) then FollowByName(TankName) end
+			if((tankTar ~= "") and CheckInteractDistance(tankTar, 4)) then
+				if(not IsFollowing) then FollowByName(UnitName(tankTar)) end
 			else TimerGodMode = 0.2 BlueBool = 3 end
 		elseif(((arg1 == "Out of range.") or (arg1 == "You are too far away!" and not UnitIsRanged("player")) or (arg1 == "Target not in line of sight")) and (BlueBool ~= 4)) then
-			if((GetTank() ~= "") and CheckInteractDistance(GetTank(), 4)) then
-				if(not IsFollowing) then FollowByName(TankName) end
+			if((tankTar ~= "") and CheckInteractDistance(tankTar, 4)) then
+				if(not IsFollowing) then FollowByName(UnitName(tankTar)) end
 			elseif((arg1 == "Out of range.") or (arg1 == "Target not in line of sight")) then TimerGodMode = 0.5 BlueBool = 4 end
 		elseif(string.find(arg1, "Inventory is full.")) then
 			CloseTrade()

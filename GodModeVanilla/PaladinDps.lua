@@ -19,7 +19,7 @@ RetributionAuraTexture = "Interface\\Icons\\Spell_Holy_AuraOfLight"
 
 local function PaladinDps()
 	if(CastingInfo == nil) then
-		if(IsInGroup()) then AssistUnit(GetTank()) if((UnitCanAttack("player", "target") == nil) and Combat) then CastSpellByName("Attack") end end
+		if(IsInGroup()) then AssistUnit(GetTank()) end
 		if(UnitCanAttack("player", "target") and (UnitIsDeadOrGhost("target") == nil)) then
 			local SoRBuff = GetUnitBuff("player", SoRTexture)
 			local SotCBuff = GetUnitBuff("player", SotCTexture)
@@ -229,7 +229,7 @@ function PaladinHeal_Dps()
 end
 
 function Paladin_Dps_OnUpdate(elapsed)
-	FollowMultibox(TankName)
+	FollowMultibox("Nihal")
 	GodModeVanilla.Pixel:SetTexture(0, 0, 0.003921*BlueBool)
 end
 

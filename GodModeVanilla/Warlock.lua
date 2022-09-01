@@ -79,7 +79,7 @@ function WarlockDps()
 		local DemonArmorBuff = GetUnitBuff("player", DemonArmorTexture)
 		local RankHealthstone = GetRankSpellList("Create Healthstone", listRank)
 		local RankSoulstone = GetRankSpellList("Create Soulstone", listRank)
-		if(IsInGroup()) then AssistUnit(GetTank()) if((UnitCanAttack("player", "target") == nil) and Combat) then UseAction(GetSlot("Attack")) end end
+		if(IsInGroup()) then AssistUnit(GetTank()) end
 		if((DropInnerCD == 0) and PartyNeedHealthstone() and not IsGroupInCombat() and not Combat and not IsTrading and HasHealthstone()) then
 			--Trade Healthstone (party)
 			GiveHealthstone()
@@ -156,7 +156,7 @@ function WarlockDps()
 end
 
 function Warlock_OnUpdate(elapsed)
-	FollowMultibox("Saelwyn")
+	FollowMultibox("Daena")
 	FearInnerCD = UpdateTimer(FearInnerCD)
 	DropInnerCD = UpdateTimer(DropInnerCD)
 	GodModeVanilla.Pixel:SetTexture(0, 0, 0.003921*BlueBool)

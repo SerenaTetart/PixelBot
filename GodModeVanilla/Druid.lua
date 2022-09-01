@@ -54,7 +54,7 @@ end
 local function DruidDps()
 	if(CastingInfo == nil) then
 		local MoonkinFormBuff = GetUnitBuff("player", MoonkinFormTexture)
-		if(IsInGroup()) then AssistUnit(GetTank()) if((UnitCanAttack("player", "target") == nil) and Combat) then UseAction(GetSlot("Attack")) end end
+		if(IsInGroup()) then AssistUnit(GetTank()) end
 		if(MoonkinFormBuff and (not Combat or ((PrctHp[0] < 40) and (PrctMana > 40)))) then
 			--Cancel Moonkin Form
 			UseAction(GetSlot("Moonkin Form"))
@@ -89,7 +89,8 @@ local function DruidDps()
 end
 
 local function HealGroup(indexP)
-	local HpRatio = PrctHp[indexP] 
+	local HpRatio = PrctHp[indexP]
+	local HpLost = HpLostTab[indexP]
 	if((indexP == 0) or (PrctHp[0] < 25)) then
 		local RegrowthBuff = GetUnitBuff("player", RegrowthTexture)
 		local RejuvenationBuff = GetUnitBuff("player", RejuvenationTexture)
@@ -105,11 +106,13 @@ local function HealGroup(indexP)
 			--Regrowth
 			TargetUnit("player")
 			UseAction(GetSlot("Regrowth"))
+			LastTarget = indexP
 			return 0
 		elseif(IsSpellReady("Healing Touch") and (HpLost >= HealingTouchValue[HealingTouchRank])) then
 			--Healing Touch
 			TargetUnit("player")
 			UseAction(GetSlot("Healing Touch"))
+			LastTarget = indexP
 			return 0
 		elseif(IsSpellReady("Rejuvenation") and not RejuvenationBuff and (HpLost >= RejuvenationValue[RejuvenationRank])) then
 			--Rejuvenation
@@ -129,11 +132,13 @@ local function HealGroup(indexP)
 			--Regrowth
 			TargetUnit("party"..indexP)
 			UseAction(GetSlot("Regrowth"))
+			LastTarget = indexP
 			return 0
 		elseif(IsSpellReady("Healing Touch") and (HpLost >= HealingTouchValue[HealingTouchRank])) then
 			--Healing Touch
 			TargetUnit("party"..indexP)
 			UseAction(GetSlot("Healing Touch"))
+			LastTarget = indexP
 			return 0
 		elseif(IsSpellReady("Rejuvenation") and not RejuvenationBuff and (HpLost >= RejuvenationValue[RejuvenationRank])) then
 			--Rejuvenation
@@ -153,11 +158,13 @@ local function HealGroup(indexP)
 			--Regrowth
 			TargetUnit("raid"..indexP)
 			UseAction(GetSlot("Regrowth"))
+			LastTarget = indexP
 			return 0
 		elseif(IsSpellReady("Healing Touch") and (HpLost >= HealingTouchValue[HealingTouchRank])) then
 			--Healing Touch
 			TargetUnit("raid"..indexP)
 			UseAction(GetSlot("Healing Touch"))
+			LastTarget = indexP
 			return 0
 		elseif(IsSpellReady("Rejuvenation") and not RejuvenationBuff and (HpLost >= RejuvenationValue[RejuvenationRank])) then
 			--Rejuvenation
@@ -175,7 +182,6 @@ function DruidHeal()
 		SpellStopCasting()
 	elseif(CastingInfo == nil and not UnitIsDeadOrGhost("player")) then
 		GetSpellBonusHealing()
-		LastTarget = HealTarget
 		local nbrTranquility = GetNbrTranquility()
 		local RemoveCurseKey = GetDispelKey("Curse")
 		local CurePoisonKey = GetDispelKey("Poison")
@@ -256,7 +262,7 @@ end
 
 function Druid_OnUpdate(elapsed)
 	DrinkingBuff = GetUnitBuff("player", DrinkingTexture)
-	if(((PrctMana > 33) or (HasDrink() == 0)) and ((not DrinkingBuff) or (PrctMana > 80))) then FollowMultibox("Saelwyn") end
+	if(((PrctMana > 33) or (HasDrink() == 0)) and ((not DrinkingBuff) or (PrctMana > 80))) then FollowMultibox("Fiore") end
 	if(DrinkingBuff and (PrctMana > 80)) then BlueBool = 4 end
 	GodModeVanilla.Pixel:SetTexture(0, 0, 0.003921*BlueBool)
 end

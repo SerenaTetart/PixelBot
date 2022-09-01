@@ -38,7 +38,7 @@ function MageDps()
 		local ArcaneIntellectBuff = GetUnitBuff("player", ArcaneIntellectTexture)
 		local ArcaneIntellectKey = GetBuffKey(ArcaneIntellectTexture)
 		local RankConjureMana = GetRankSpellList("Conjure Mana", listRank)
-		if(IsInGroup()) then AssistUnit(GetTank()) if((UnitCanAttack("player", "target") == nil) and Combat) then UseAction(GetSlot("Attack")) end end
+		if(IsInGroup()) then AssistUnit(GetTank()) end
 		if(not IsPlayerSpell("Mage Armor") and IsSpellReady("Frost Armor") and not FrostArmorBuff) then
 			--Frost Armor
 			UseAction(GetSlot("Frost Armor"))
