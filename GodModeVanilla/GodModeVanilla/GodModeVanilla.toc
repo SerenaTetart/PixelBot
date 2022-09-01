@@ -1,0 +1,21 @@
+## Interface: 11200
+## Title: |cFFFFFFFFGodModeVanilla|r|cFF00FF00 v1.0.0|r
+## Version: 1.0.0
+
+GodModeVanilla.lua
+GodModeVanilla.xml
+Database.lua
+
+Druid.lua
+Hunter.lua
+Mage.lua
+PaladinTank.lua
+PaladinHeal.lua
+PaladinDps.lua
+Priest.lua
+Rogue.lua
+ShamanHeal.lua
+ShamanDpsDist.lua
+ShamanDps.lua
+Warlock.lua
+Warrior.lua
