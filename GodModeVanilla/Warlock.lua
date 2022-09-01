@@ -79,19 +79,19 @@ function WarlockDps()
 		local DemonArmorBuff = GetUnitBuff("player", DemonArmorTexture)
 		local RankHealthstone = GetRankSpellList("Create Healthstone", listRank)
 		local RankSoulstone = GetRankSpellList("Create Soulstone", listRank)
-		if(IsInGroup()) then AssistUnit(GetTank()) if((UnitCanAttack("player", "target") == nil) and Combat) then CastSpellByName("Attack") end end
+		if(IsInGroup()) then AssistUnit(GetTank()) if((UnitCanAttack("player", "target") == nil) and Combat) then UseAction(GetSlot("Attack")) end end
 		if((DropInnerCD == 0) and PartyNeedHealthstone() and not IsGroupInCombat() and not Combat and not IsTrading and HasHealthstone()) then
 			--Trade Healthstone (party)
 			GiveHealthstone()
 		elseif(not Combat and not IsPlayerSpell("Demon Armor") and IsSpellReady("Demon Skin") and not DemonArmorBuff) then
 			--Demon Skin
-			CastSpellByName("Demon Skin")
+			UseAction(GetSlot("Demon Skin"))
 		elseif(not Combat and IsSpellReady("Demon Armor") and not DemonArmorBuff) then
 			--Demon Armor
-			CastSpellByName("Demon Armor")
+			UseAction(GetSlot("Demon Armor"))
 		elseif(not Combat and IsSpellReady("Summon Imp") and not UnitExists("pet")) then
 			--Summon Imp
-			CastSpellByName("Summon Imp")
+			UseAction(GetSlot("Summon Imp"))
 		elseif(not Combat and IsSpellReady(RankHealthstone) and not HasHealthstone()) then
 			--Create Healthstone
 			CastSpellByName(RankHealthstone..'()')
@@ -104,7 +104,7 @@ function WarlockDps()
 			PlaceItem(120, "Pierre d'âme") UseAction(120)
 		elseif(not Combat and not IsGroupInCombat() and (PrctHp[0] > 25) and (PrctMana < 80)) then
 			--Life Tap (Out of Combat)
-			CastSpellByName("Life Tap")
+			UseAction(GetSlot("Life Tap"))
 		elseif((PrctHp[0] < 40) and HasHealthstone() and (GetHealthstoneCD() < 1.25) and Combat) then
 			--Healthstone
 			PlaceItem(120, "Healthstone") UseAction(120)
@@ -119,37 +119,37 @@ function WarlockDps()
 			local ImmolateDebuff = GetUnitDebuff("target", ImmolateTexture)
 			if(IsSpellReady("Mortal Coil") and PrctHp[0] < 35) then
 				--Mortal Coil
-				CastSpellByName("Mortal Coil")
+				UseAction(GetSlot("Mortal Coil"))
 			elseif(IsSpellReady("Fear") and (UnitPlayerControlled("target") or ((PrctHp[0] < 50) and (not IsInGroup()))) and not IsFeared("target") and (FearInnerCD == 0)) then
 				--Fear
-				CastSpellByName("Fear")
+				UseAction(GetSlot("Fear"))
 			elseif(IsSpellReady("Drain of Life") and PrctHp[0] < 40) then
 				--Drain of Life
-				CastSpellByName("Drain of Life")
+				UseAction(GetSlot("Drain of Life"))
 			elseif(IsSpellReady("Drain Soul") and (UnitHealth("target") < 33) and (GetItemCount(6265) < 15)) then
 				--Drain Soul
-				CastSpellByName("Drain Soul")
+				UseAction(GetSlot("Drain Soul"))
 			elseif(IsSpellReady("Curse of Agony") and not CoAgonyDebuff and (UnitIsElite("target") or not IsInGroup())) then
 				--Curse of Agony
-				CastSpellByName("Curse of Agony")
+				UseAction(GetSlot("Curse of Agony"))
 			elseif(IsSpellReady("Corruption") and not CorruptionDebuff) then
 				--Corruption
-				CastSpellByName("Corruption")
+				UseAction(GetSlot("Corruption"))
 			elseif(IsSpellReady("Siphon Life") and not LifeSiphonDebuff and (UnitIsElite("target") or not IsInGroup())) then
 				--Siphon Life
-				CastSpellByName("Siphon Life")
+				UseAction(GetSlot("Siphon Life"))
 			elseif(IsSpellReady("Immolate") and not ImmolateDebuff) then
 				--Immolate
-				CastSpellByName("Immolate")
+				UseAction(GetSlot("Immolate"))
 			elseif(IsSpellReady("Shadow Bolt")) then
 				--Shadow Bolt
-				CastSpellByName("Shadow Bolt")
+				UseAction(GetSlot("Shadow Bolt"))
 			elseif(IsSpellReady("Life Tap") and (PrctHp[0] > 25) and (PrctMana < 10)) then
 				--Life Tap
-				CastSpellByName("Life Tap")
+				UseAction(GetSlot("Life Tap"))
 			elseif(HasWandEquipped() and not IsAutoRepeatAction(GetSlot("Wand"))) then
 				--Wand
-				CastSpellByName("Wand")
+				UseAction(GetSlot("Wand"))
 			end
 		end
 	end

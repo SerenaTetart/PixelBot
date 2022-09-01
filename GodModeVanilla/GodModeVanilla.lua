@@ -874,7 +874,7 @@ function GodModeVanilla:OnUpdate()
 	elseif(UnitClass("player") == "Priest") then
 		Priest_OnUpdate(elapsed)
 	elseif(UnitClass("player") == "Rogue") then
-		--Rogue_OnUpdate(elapsed)
+		Rogue_OnUpdate(elapsed)
 	end
 end
 
@@ -917,6 +917,7 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 			MakeCombatMacro(macroIndex, macroBody, "/run WarlockDps()")
 		elseif(UnitClass("player") == "Warrior") then
 			MakeCombatMacro(macroIndex, macroBody, "/run WarriorDps()")
+			Warrior_OnLoad()
 		elseif(UnitClass("player") == "Paladin" and (GetPlayerRole() == 2)) then
 			MakeCombatMacro(macroIndex, macroBody, "/run PaladinHeal_Tank()")
 		elseif(UnitClass("player") == "Paladin" and (GetPlayerRole() == 1)) then
@@ -927,6 +928,8 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 			MakeCombatMacro(macroIndex, macroBody, "/run PriestHeal()")
 			IDEquipment = GetEquipmentID()
 			Priest_OnLoad()
+		elseif(UnitClass("player") == "Rogue") then
+			MakeCombatMacro(macroIndex, macroBody, "/run RogueDps()")
 		end
 	elseif(event == "PLAYER_REGEN_ENABLED") then
 		Combat = false TabAggro = {} NbrEnemyAggro = 0

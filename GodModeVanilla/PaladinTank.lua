@@ -24,7 +24,8 @@ BubbleTexture = "Interface\\Icons\\Spell_Holy_Restoration"
 
 local function PaladinDps()
 	if(CastingInfo == nil) then
-		if((UnitCanAttack("player", "target") == nil) and Combat) then CastSpellByName("Attack") end
+		if(Combat and UnitCanAttack("player", "target") and UnitAffectingCombat("target") == nil) then ClearTarget()
+		elseif(Combat and ((UnitCanAttack("player", "target") == nil) or (CheckInteractDistance("target", 4) == nil))) then TargetNearestEnemy() end
 		if(UnitCanAttack("player", "target") and (UnitIsDeadOrGhost("target") == nil)) then
 			local SoRBuff = GetUnitBuff("player", SoRTexture)
 			local SoWBuff = GetUnitBuff("player", SoWTexture)

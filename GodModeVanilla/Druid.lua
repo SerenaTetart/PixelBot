@@ -54,13 +54,13 @@ end
 local function DruidDps()
 	if(CastingInfo == nil) then
 		local MoonkinFormBuff = GetUnitBuff("player", MoonkinFormTexture)
-		if(IsInGroup()) then AssistUnit(GetTank()) if((UnitCanAttack("player", "target") == nil) and Combat) then CastSpellByName("Attaque") end end
+		if(IsInGroup()) then AssistUnit(GetTank()) if((UnitCanAttack("player", "target") == nil) and Combat) then UseAction(GetSlot("Attack")) end end
 		if(MoonkinFormBuff and (not Combat or ((PrctHp[0] < 40) and (PrctMana > 40)))) then
 			--Cancel Moonkin Form
-			CastSpellByName("Forme de sélénien")
-		elseif(IsSpellReady("Forme de sélénien") and Combat and not MoonkinFormBuff) then
+			UseAction(GetSlot("Moonkin Form"))
+		elseif(IsSpellReady("Moonkin Form") and Combat and not MoonkinFormBuff) then
 			--Moonkin Form
-			CastSpellByName("Forme de sélénien")
+			UseAction(GetSlot("Moonkin Form"))
 		elseif(UnitCanAttack("player", "target") and (UnitIsDeadOrGhost("target") == nil)) then
 			local MoonfireDebuff = GetUnitDebuff("target", MoonfireTexture)
 			local InsectSwarmDebuff = GetUnitDebuff("target", InsectSwarmTexture)
@@ -69,27 +69,108 @@ local function DruidDps()
 				if(not Combat) then TimerGodMode = 0.5 BlueBool = 7
 				else TimerGodMode = 0.5 BlueBool = 6 end
 			end
-			if(PrctMana >= 0) then
-				if(IsSpellReady("Eclat lunaire") and not MoonfireDebuff) then
+			if(PrctMana >= 50) then
+				if(IsSpellReady("Moonfire") and not MoonfireDebuff) then
 					--Moonfire
-					CastSpellByName("Eclat lunaire")
-				elseif(IsSpellReady("Lucioles") and not FearieFireDebuff and UnitIsElite("target")) then
+					UseAction(GetSlot("Moonfire"))
+				elseif(IsSpellReady("Faerie fire") and not FearieFireDebuff and UnitIsElite("target")) then
 					--Faerie fire
-					CastSpellByName("Lucioles")
-				elseif(IsSpellReady("Essaim d'insectes") and not InsectSwarmDebuff) then
+					UseAction(GetSlot("Faerie fire"))
+				elseif(IsSpellReady("Insect Swarm") and not InsectSwarmDebuff) then
 					--Insect Swarm
-					CastSpellByName("Essaim d'insectes")
-				elseif(IsSpellReady("Colère")) then
+					UseAction(GetSlot("Insect Swarm"))
+				elseif(IsSpellReady("Wrath")) then
 					--Wrath
-					CastSpellByName("Colère")
+					UseAction(GetSlot("Wrath"))
 				end
 			end
 		end
 	end
 end
 
+local function HealGroup(indexP)
+	local HpRatio = PrctHp[indexP] 
+	if((indexP == 0) or (PrctHp[0] < 25)) then
+		local RegrowthBuff = GetUnitBuff("player", RegrowthTexture)
+		local RejuvenationBuff = GetUnitBuff("player", RejuvenationTexture)
+		if((HpRatio < 40) and HasHealthstone() and (GetHealthstoneCD() < 1.25) and Combat) then
+			--Healthstone
+			PlaceItem(120, "Healthstone") UseAction(120)
+			return 0
+		elseif((HpRatio < 35) and HasHPotion() and (GetHPotionCD() < 1.25) and Combat) then
+			--Healing Potion
+			PlaceItem(120, "Healing Potion") UseAction(120)
+			return 0
+		elseif(IsSpellReady("Regrowth") and not RegrowthBuff and (HpLost >= RegrowthValue[RegrowthRank])) then
+			--Regrowth
+			TargetUnit("player")
+			UseAction(GetSlot("Regrowth"))
+			return 0
+		elseif(IsSpellReady("Healing Touch") and (HpLost >= HealingTouchValue[HealingTouchRank])) then
+			--Healing Touch
+			TargetUnit("player")
+			UseAction(GetSlot("Healing Touch"))
+			return 0
+		elseif(IsSpellReady("Rejuvenation") and not RejuvenationBuff and (HpLost >= RejuvenationValue[RejuvenationRank])) then
+			--Rejuvenation
+			TargetUnit("player")
+			UseAction(GetSlot("Rejuvenation"))
+			return 0
+		end
+	elseif((indexP > 0) and (IsInRaid() == false)) then
+		local RegrowthBuff = GetUnitBuff("party"..indexP, RegrowthTexture)
+		local RejuvenationBuff = GetUnitBuff("party"..indexP, RejuvenationTexture)
+		if(IsSpellReady("Tranquility") and (nbrTranquility >= 3)) then
+			--Tranquility
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Tranquility"))
+			return 0
+		elseif(IsSpellReady("Regrowth") and not RegrowthBuff and (HpLost >= RegrowthValue[RegrowthRank])) then
+			--Regrowth
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Regrowth"))
+			return 0
+		elseif(IsSpellReady("Healing Touch") and (HpLost >= HealingTouchValue[HealingTouchRank])) then
+			--Healing Touch
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Healing Touch"))
+			return 0
+		elseif(IsSpellReady("Rejuvenation") and not RejuvenationBuff and (HpLost >= RejuvenationValue[RejuvenationRank])) then
+			--Rejuvenation
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Rejuvenation"))
+			return 0
+		end
+	elseif(indexP > 0) then
+		local RegrowthBuff = GetUnitBuff("raid"..indexP, RegrowthTexture)
+		local RejuvenationBuff = GetUnitBuff("raid"..indexP, RejuvenationTexture)
+		if(IsSpellReady("Tranquility") and (nbrTranquility >= 3)) then
+			--Tranquility
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Tranquility"))
+			return 0
+		elseif(IsSpellReady("Regrowth") and not RegrowthBuff and (HpLost >= RegrowthValue[RegrowthRank])) then
+			--Regrowth
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Regrowth"))
+			return 0
+		elseif(IsSpellReady("Healing Touch") and (HpLost >= HealingTouchValue[HealingTouchRank])) then
+			--Healing Touch
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Healing Touch"))
+			return 0
+		elseif(IsSpellReady("Rejuvenation") and not RejuvenationBuff and (HpLost >= RejuvenationValue[RejuvenationRank])) then
+			--Rejuvenation
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Rejuvenation"))
+			return 0
+		end
+	end
+	return 1
+end
+
 function DruidHeal()
-	if(((CastingInfo == "Toucher guérisseur") and (HpLostTab[LastTarget] < HealingTouchValue[HealingTouchRank]*0.9)) or ((CastingInfo == "Rétablissement") and (HpLostTab[LastTarget] < RegrowthValue[RegrowthRank]*0.9))) then
+	if(((CastingInfo == "Healing Touch") and (HpLostTab[LastTarget] < HealingTouchValue[HealingTouchRank]*0.9)) or ((CastingInfo == "Rétablissement") and (HpLostTab[LastTarget] < RegrowthValue[RegrowthRank]*0.9))) then
 		--Stop Casting
 		SpellStopCasting()
 	elseif(CastingInfo == nil and not UnitIsDeadOrGhost("player")) then
@@ -105,131 +186,70 @@ function DruidHeal()
 		if(not IsFollowing and Combat and IsSpellReady("Renaissance") and (GetGroupDead() > 0)) then
 			--Rebirth
 			TargetUnit(tar..GetGroupDead())
-			CastSpellByName("Renaissance")
+			UseAction(GetSlot("Rebirth"))
 		elseif(not IsFollowing and not Combat and not DrinkingBuff and (PrctMana < 33) and (HasDrink() > 0)) then
 			--Drink
 			PlaceItem(120, HasDrink()) UseAction(120)
-		elseif(IsSpellReady("Marque du fauve") and not MarkWildBuff and not Combat) then
+		elseif(IsSpellReady("Mark of the Wild") and not MarkWildBuff and not Combat) then
 			--Mark of the Wild (self)
 			TargetUnit("player")
-			CastSpellByName("Marque du fauve")
-		elseif(IsSpellReady("Epines") and not ThornsBuff and not Combat) then
+			UseAction(GetSlot("Mark of the Wild"))
+		elseif(IsSpellReady("Thorns") and not ThornsBuff and not Combat) then
 			--Thorns (self)
 			TargetUnit("player")
-			CastSpellByName("Epines")
-		elseif(IsSpellReady("Marque du fauve") and (MarkWildKey > 0) and not Combat) then
+			UseAction(GetSlot("Thorns"))
+		elseif(IsSpellReady("Mark of the Wild") and (MarkWildKey > 0) and not Combat) then
 			--Mark of the Wild (Groupe)
 			if(IsSpellReady("Don du fauve") and (GetItemCount(17026) > 0)) then
-				CastSpellByName("Marque du fauve")
+				UseAction(GetSlot("Mark of the Wild"))
 			else
 				if(IsInRaid()) then TargetUnit("raid"..MarkWildKey)
 				else TargetUnit("party"..MarkWildKey) end
-				CastSpellByName("Marque du fauve")
+				UseAction(GetSlot("Mark of the Wild"))
 			end
-		elseif(IsSpellReady("Epines") and (ThornsKey > 0) and not Combat) then
+		elseif(IsSpellReady("Thorns") and (ThornsKey > 0) and not Combat) then
 			--Thorns (Groupe)
 			if(IsInRaid()) then TargetUnit("raid"..ThornsKey)
 			else TargetUnit("party"..ThornsKey) end
-			CastSpellByName("Epines")
+			UseAction(GetSlot("Thorns"))
 		elseif(IsSpellReady("Innervation") and (PrctMana < 15) and Combat) then
 			--Innervation
 			TargetUnit("player")
-			CastSpellByName("Innervation")
+			UseAction(GetSlot("Innervation"))
 		elseif(Combat and (PrctMana < 10) and ((PrctHp[0] > 50) or not HasHPotion()) and HasMPotion() and (GetMPotionCD() < 1.25)) then
 			--Mana Potion
-			PlaceItem(120, "Potion de mana") UseAction(120)
-		elseif(IsSpellReady("Délivrance de la malédiction") and GetUnitDispel("player", "Curse")) then
+			PlaceItem(120, "Mana Potion") UseAction(120)
+		elseif(IsSpellReady("Remove Curse") and GetUnitDispel("player", "Curse")) then
 			--Remove Curse (self)
 			TargetUnit("player")
-			CastSpellByName("Délivrance de la malédiction")
-		elseif(IsSpellReady("Guérison du poison") and GetUnitDispel("player", "Poison")) then
+			UseAction(GetSlot("Remove Curse"))
+		elseif(IsSpellReady("Cure Poison") and GetUnitDispel("player", "Poison")) then
 			--Cure Poison (self)
 			TargetUnit("player")
-			CastSpellByName("Guérison du poison")
-		elseif(IsSpellReady("Délivrance de la malédiction") and (RemoveCurseKey > 0)) then
+			UseAction(GetSlot("Cure Poison"))
+		elseif(IsSpellReady("Remove Curse") and (RemoveCurseKey > 0)) then
 			--Remove Curse (Groupe)
 			if(IsInRaid()) then
 				TargetUnit("raid"..RemoveCurseKey)
 			else
 				TargetUnit("party"..RemoveCurseKey)
 			end
-			CastSpellByName("Délivrance de la malédiction")
-		elseif(IsSpellReady("Guérison du poison") and (CurePoisonKey > 0)) then
+			UseAction(GetSlot("Remove Curse"))
+		elseif(IsSpellReady("Cure Poison") and (CurePoisonKey > 0)) then
 			--Cure Poison (Groupe)
 			if(IsInRaid()) then
 				TargetUnit("raid"..CurePoisonKey)
 			else
 				TargetUnit("party"..CurePoisonKey)
 			end
-			CastSpellByName("Guérison du poison")
-		elseif((HealTarget == 0) or (PrctHp[0] < 25)) then
-			local RegrowthBuff = GetUnitBuff("player", RegrowthTexture)
-			local RejuvenationBuff = GetUnitBuff("player", RejuvenationTexture)
-			if((HpRatio < 40) and HasHealthstone() and (GetHealthstoneCD() < 1.25) and Combat) then
-				--Healthstone
-				PlaceItem(120, "Pierre de soins") UseAction(120)
-			elseif((HpRatio < 35) and HasHPotion() and (GetHPotionCD() < 1.25) and Combat) then
-				--Healing Potion
-				PlaceItem(120, "Potion de soins") UseAction(120)
-			elseif(IsSpellReady("Rétablissement") and not RegrowthBuff and (HpLost >= RegrowthValue[RegrowthRank])) then
-				--Regrowth
-				TargetUnit("player")
-				CastSpellByName("Rétablissement")
-			elseif(IsSpellReady("Toucher guérisseur") and (HpLost >= HealingTouchValue[HealingTouchRank])) then
-				--Healing Touch
-				TargetUnit("player")
-				CastSpellByName("Toucher guérisseur")
-			elseif(IsSpellReady("Récupération") and not RejuvenationBuff and (HpLost >= RejuvenationValue[RejuvenationRank])) then
-				--Rejuvenation
-				TargetUnit("player")
-				CastSpellByName("Récupération")
-			else
-				DruidDps()
+			UseAction(GetSlot("Cure Poison"))
+		else
+			local tmp = 1; local index = 0
+			while(tmp == 1 and index <= GetNumGroupMembers()) do
+				tmp = HealGroup(HealTargetTab[index])
+				index = index + 1
 			end
-		elseif((HealTarget > 0) and (IsInRaid() == false)) then
-			local RegrowthBuff = GetUnitBuff("party"..HealTarget, RegrowthTexture)
-			local RejuvenationBuff = GetUnitBuff("party"..HealTarget, RejuvenationTexture)
-			if(IsSpellReady("Tranquillité") and (nbrTranquility >= 3)) then
-				--Tranquility
-				TargetUnit("party"..HealTarget)
-				CastSpellByName("Tranquillité")
-			elseif(IsSpellReady("Rétablissement") and not RegrowthBuff and (HpLost >= RegrowthValue[RegrowthRank])) then
-				--Regrowth
-				TargetUnit("party"..HealTarget)
-				CastSpellByName("Rétablissement")
-			elseif(IsSpellReady("Toucher guérisseur") and (HpLost >= HealingTouchValue[HealingTouchRank])) then
-				--Healing Touch
-				TargetUnit("party"..HealTarget)
-				CastSpellByName("Toucher guérisseur")
-			elseif(IsSpellReady("Récupération") and not RejuvenationBuff and (HpLost >= RejuvenationValue[RejuvenationRank])) then
-				--Rejuvenation
-				TargetUnit("party"..HealTarget)
-				CastSpellByName("Récupération")
-			else
-				DruidDps()
-			end
-		elseif(HealTarget > 0) then
-			local RegrowthBuff = GetUnitBuff("raid"..HealTarget, RegrowthTexture)
-			local RejuvenationBuff = GetUnitBuff("raid"..HealTarget, RejuvenationTexture)
-			if(IsSpellReady("Tranquillité") and (nbrTranquility >= 3)) then
-				--Tranquility
-				TargetUnit("raid"..HealTarget)
-				CastSpellByName("Tranquillité")
-			elseif(IsSpellReady("Rétablissement") and not RegrowthBuff and (HpLost >= RegrowthValue[RegrowthRank])) then
-				--Regrowth
-				TargetUnit("raid"..HealTarget)
-				CastSpellByName("Rétablissement")
-			elseif(IsSpellReady("Toucher guérisseur") and (HpLost >= HealingTouchValue[HealingTouchRank])) then
-				--Healing Touch
-				TargetUnit("raid"..HealTarget)
-				CastSpellByName("Toucher guérisseur")
-			elseif(IsSpellReady("Récupération") and not RejuvenationBuff and (HpLost >= RejuvenationValue[RejuvenationRank])) then
-				--Rejuvenation
-				TargetUnit("raid"..HealTarget)
-				CastSpellByName("Récupération")
-			else
-				DruidDps()
-			end
+			if(tmp == 1) then DruidDps() end
 		end
 	end
 end
@@ -243,10 +263,10 @@ end
 
 function Druid_OnLoad()  --Map Update
 	--Rank/ID
-	if(IsPlayerSpell("Toucher guérisseur")) then _,HealingTouchRank = GetSpellID("Toucher guérisseur") end
-	if(IsPlayerSpell("Récupération")) then _,RejuvenationRank = GetSpellID("Récupération") end
-	if(IsPlayerSpell("Rétablissement")) then _,RegrowthRank = GetSpellID("Rétablissement") end
-	if(IsPlayerSpell("Tranquillité")) then _,TranquilityRank = GetSpellID("Tranquillité") end
+	if(IsPlayerSpell("Healing Touch")) then _,HealingTouchRank = GetSpellID("Healing Touch") end
+	if(IsPlayerSpell("Rejuvenation")) then _,RejuvenationRank = GetSpellID("Rejuvenation") end
+	if(IsPlayerSpell("Regrowth")) then _,RegrowthRank = GetSpellID("Regrowth") end
+	if(IsPlayerSpell("Tranquility")) then _,TranquilityRank = GetSpellID("Tranquility") end
 end
 
 function Druid_OnSpellLearned()

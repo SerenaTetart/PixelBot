@@ -77,7 +77,7 @@ local function PriestDps()
 			if(CheckInteractDistance("target", 4) and IsFollowing) then TimerGodMode = 0.5 BlueBool = 6 end
 			local _,_,_,_,BlackoutRank = GetTalentInfo(3, 2)
 			local _,_,_,_,SpiritTapRank = GetTalentInfo(3, 1)
-			if((BlackoutRank > 0) or (SpiritTapRank > 0)) then
+			if((BlackoutRank > 0) or (SpiritTapRank > 0) or (PrctMana >= 50)) then
 				if(IsSpellReady("Etreinte vampirique") and UnitIsElite("target") and not VampiricEmbraceDebuff) then
 					--Vampiric Embrace
 					UseAction(GetSlot("Etreinte vampirique"))
@@ -109,6 +109,138 @@ local function PriestDps()
 			end
 		end
 	end
+end
+
+local function HealGroup(indexP)
+	if((indexP == 0) or (PrctHp[0] < 25)) then
+		local RenewBuff = GetUnitBuff("player", RenewTexture)
+		local PWordShieldBuff = GetUnitBuff("player", PWordShieldTexture)
+		local WeakenedSoulDebuff = GetUnitDebuff("player", WeakenedSoulTexture)
+		if(IsSpellReady("Prière du désespoir") and (HpRatio < 40) and Combat) then
+			--Desperate Prayer
+			UseAction(GetSlot("Prière du désespoir"))
+			return 0
+		elseif((HpRatio < 40) and HasHealthstone() and (GetHealthstoneCD() < 1.25) and Combat) then
+			--Healthstone
+			PlaceItem(120, "Pierre de soins") UseAction(120)
+			return 0
+		elseif((HpRatio < 35) and HasHPotion() and (GetHPotionCD() < 1.25) and Combat) then
+			--Healing Potion
+			PlaceItem(120, "Potion de soins") UseAction(120)
+			return 0
+		elseif(IsSpellReady("Mot de pouvoir : Bouclier") and (HpRatio < 30) and not PWordShieldBuff and not WeakenedSoulDebuff and Combat) then
+			--Power Word: Shield
+			TargetUnit("player")
+			UseAction(GetSlot("Mot de pouvoir : Bouclier"))
+			return 0
+		elseif(IsSpellReady("Soins rapides") and (HpRatio < 30) and Combat) then
+			--Flash Heal
+			TargetUnit("player")
+			UseAction(GetSlot("Soins rapides"))
+			return 0
+		elseif(IsSpellReady("Rénovation") and (HpLost >= RenewValue[RenewRank]) and not RenewBuff) then
+			--Renew
+			TargetUnit("player")
+			UseAction(GetSlot("Rénovation"))
+			return 0
+		elseif(IsSpellReady("Soins supérieurs") and (HpLost >= GreaterHealValue[GreaterHealRank])) then
+			--Greater Heal
+			TargetUnit("player")
+			UseAction(GetSlot("Soins supérieurs"))
+			return 0
+		elseif(IsSpellReady("Soins") and (HpLost >= HealValue[HealRank])) then
+			--Heal
+			TargetUnit("player")
+			UseAction(GetSlot("Soins"))
+			return 0
+		elseif(IsSpellReady("Soins inférieurs") and (HpLost >= LesserHealValue[LesserHealRank]) and (UnitLevel("player") < 40)) then
+			--Lesser Heal
+			TargetUnit("player")
+			UseAction(GetSlot("Soins inférieurs"))
+			return 0
+		end
+	elseif((indexP > 0) and (IsInRaid() == false)) then
+		local RenewBuff = GetUnitBuff("party"..indexP, RenewTexture)
+		local PWordShieldBuff = GetUnitBuff("party"..indexP, PWordShieldTexture)
+		local WeakenedSoulDebuff = GetUnitDebuff("party"..indexP, WeakenedSoulTexture)
+		if(IsSpellReady("Mot de pouvoir : Bouclier") and (HpRatio < 30) and not PWordShieldBuff and not WeakenedSoulDebuff and Combat) then
+			--Power Word: Shield
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Mot de pouvoir : Bouclier"))
+			return 0
+		elseif(IsSpellReady("Soins rapides") and (HpRatio < 30) and Combat) then
+			--Flash Heal
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Soins rapides"))
+			return 0
+		elseif(IsSpellReady("Prière de soins") and (nbrPoHealing >= 3)) then
+			--Prayer of Healing
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Prière de soins"))
+			return 0
+		elseif(IsSpellReady("Rénovation") and (HpLost >= RenewValue[RenewRank]) and not RenewBuff) then
+			--Renew
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Rénovation"))
+			return 0
+		elseif(IsSpellReady("Soins supérieurs") and (HpLost >= GreaterHealValue[GreaterHealRank])) then
+			--Greater Heal
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Soins supérieurs"))
+			return 0
+		elseif(IsSpellReady("Soins") and (HpLost >= HealValue[HealRank])) then
+			--Heal
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Soins"))
+			return 0
+		elseif(IsSpellReady("Soins inférieurs") and (HpLost >= LesserHealValue[LesserHealRank]) and (UnitLevel("player") < 40)) then
+			--Lesser Heal
+			TargetUnit("party"..indexP)
+			UseAction(GetSlot("Soins inférieurs"))
+			return 0
+		end
+	elseif(indexP > 0) then
+		local RenewBuff = GetUnitBuff("raid"..indexP, RenewTexture)
+		local PWordShieldBuff = GetUnitBuff("raid"..indexP, PWordShieldTexture)
+		local WeakenedSoulDebuff = GetUnitDebuff("raid"..indexP, WeakenedSoulTexture)
+		if(IsSpellReady("Mot de pouvoir : Bouclier") and (HpRatio < 30) and not PWordShieldBuff and not WeakenedSoulDebuff and Combat) then
+			--Power Word: Shield
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Mot de pouvoir : Bouclier"))
+			return 0
+		elseif(IsSpellReady("Soins rapides") and (HpRatio < 30) and Combat) then
+			--Flash Heal
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Soins rapides"))
+			return 0
+		elseif(IsSpellReady("Prière de soins") and (nbrPoHealing >= 3)) then
+			--Prayer of Healing
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Prière de soins"))
+			return 0
+		elseif(IsSpellReady("Rénovation") and (HpLost >= RenewValue[RenewRank]) and not RenewBuff) then
+			--Renew
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Rénovation"))
+			return 0
+		elseif(IsSpellReady("Soins supérieurs") and (HpLost >= GreaterHealValue[GreaterHealRank])) then
+			--Greater Heal
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Soins supérieurs"))
+			return 0
+		elseif(IsSpellReady("Soins") and (HpLost >= HealValue[HealRank])) then
+			--Heal
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Soins"))
+			return 0
+		elseif(IsSpellReady("Soins inférieurs") and (HpLost >= LesserHealValue[LesserHealRank]) and (UnitLevel("player") < 40)) then
+			--Lesser Heal
+			TargetUnit("raid"..indexP)
+			UseAction(GetSlot("Soins inférieurs"))
+			return 0
+		end
+	end
+	return 1
 end
 
 function PriestHeal()
@@ -205,116 +337,13 @@ function PriestHeal()
 				TargetUnit("party"..DispelMagicKey)
 			end
 			UseAction(GetSlot("Dissipation de la magie"))
-		elseif((HealTarget == 0) or (PrctHp[0] < 25)) then
-			local RenewBuff = GetUnitBuff("player", RenewTexture)
-			local PWordShieldBuff = GetUnitBuff("player", PWordShieldTexture)
-			local WeakenedSoulDebuff = GetUnitDebuff("player", WeakenedSoulTexture)
-			if(IsSpellReady("Prière du désespoir") and (HpRatio < 40) and Combat) then
-				--Desperate Prayer
-				UseAction(GetSlot("Prière du désespoir"))
-			elseif((HpRatio < 40) and HasHealthstone() and (GetHealthstoneCD() < 1.25) and Combat) then
-				--Healthstone
-				PlaceItem(120, "Pierre de soins") UseAction(120)
-			elseif((HpRatio < 35) and HasHPotion() and (GetHPotionCD() < 1.25) and Combat) then
-				--Healing Potion
-				PlaceItem(120, "Potion de soins") UseAction(120)
-			elseif(IsSpellReady("Mot de pouvoir : Bouclier") and (HpRatio < 30) and not PWordShieldBuff and not WeakenedSoulDebuff and Combat) then
-				--Power Word: Shield
-				TargetUnit("player")
-				UseAction(GetSlot("Mot de pouvoir : Bouclier"))
-			elseif(IsSpellReady("Soins rapides") and (HpRatio < 30) and Combat) then
-				--Flash Heal
-				TargetUnit("player")
-				UseAction(GetSlot("Soins rapides"))
-			elseif(IsSpellReady("Rénovation") and (HpLost >= RenewValue[RenewRank]) and not RenewBuff) then
-				--Renew
-				TargetUnit("player")
-				UseAction(GetSlot("Rénovation"))
-			elseif(IsSpellReady("Soins supérieurs") and (HpLost >= GreaterHealValue[GreaterHealRank])) then
-				--Greater Heal
-				TargetUnit("player")
-				UseAction(GetSlot("Soins supérieurs"))
-			elseif(IsSpellReady("Soins") and (HpLost >= HealValue[HealRank])) then
-				--Heal
-				TargetUnit("player")
-				UseAction(GetSlot("Soins"))
-			elseif(IsSpellReady("Soins inférieurs") and (HpLost >= LesserHealValue[LesserHealRank]) and (UnitLevel("player") < 40)) then
-				--Lesser Heal
-				TargetUnit("player")
-				UseAction(GetSlot("Soins inférieurs"))
-			else
-				PriestDps()
+		else
+			local tmp = 1; local index = 0
+			while(tmp == 1 and index <= GetNumGroupMembers()) do
+				tmp = HealGroup(HealTargetTab[index])
+				index = index + 1
 			end
-		elseif((HealTarget > 0) and (IsInRaid() == false)) then
-			local RenewBuff = GetUnitBuff("party"..HealTarget, RenewTexture)
-			local PWordShieldBuff = GetUnitBuff("party"..HealTarget, PWordShieldTexture)
-			local WeakenedSoulDebuff = GetUnitDebuff("party"..HealTarget, WeakenedSoulTexture)
-			if(IsSpellReady("Mot de pouvoir : Bouclier") and (HpRatio < 30) and not PWordShieldBuff and not WeakenedSoulDebuff and Combat) then
-				--Power Word: Shield
-				TargetUnit("party"..HealTarget)
-				UseAction(GetSlot("Mot de pouvoir : Bouclier"))
-			elseif(IsSpellReady("Soins rapides") and (HpRatio < 30) and Combat) then
-				--Flash Heal
-				TargetUnit("party"..HealTarget)
-				UseAction(GetSlot("Soins rapides"))
-			elseif(IsSpellReady("Prière de soins") and (nbrPoHealing >= 3)) then
-				--Prayer of Healing
-				TargetUnit("party"..HealTarget)
-				UseAction(GetSlot("Prière de soins"))
-			elseif(IsSpellReady("Rénovation") and (HpLost >= RenewValue[RenewRank]) and not RenewBuff) then
-				--Renew
-				TargetUnit("party"..HealTarget)
-				UseAction(GetSlot("Rénovation"))
-			elseif(IsSpellReady("Soins supérieurs") and (HpLost >= GreaterHealValue[GreaterHealRank])) then
-				--Greater Heal
-				TargetUnit("party"..HealTarget)
-				UseAction(GetSlot("Soins supérieurs"))
-			elseif(IsSpellReady("Soins") and (HpLost >= HealValue[HealRank])) then
-				--Heal
-				TargetUnit("party"..HealTarget)
-				UseAction(GetSlot("Soins"))
-			elseif(IsSpellReady("Soins inférieurs") and (HpLost >= LesserHealValue[LesserHealRank]) and (UnitLevel("player") < 40)) then
-				--Lesser Heal
-				TargetUnit("party"..HealTarget)
-				UseAction(GetSlot("Soins inférieurs"))
-			else
-				PriestDps()
-			end
-		elseif(HealTarget > 0) then
-			local RenewBuff = GetUnitBuff("raid"..HealTarget, RenewTexture)
-			local PWordShieldBuff = GetUnitBuff("raid"..HealTarget, PWordShieldTexture)
-			local WeakenedSoulDebuff = GetUnitDebuff("raid"..HealTarget, WeakenedSoulTexture)
-			if(IsSpellReady("Mot de pouvoir : Bouclier") and (HpRatio < 30) and not PWordShieldBuff and not WeakenedSoulDebuff and Combat) then
-				--Power Word: Shield
-				TargetUnit("raid"..HealTarget)
-				UseAction(GetSlot("Mot de pouvoir : Bouclier"))
-			elseif(IsSpellReady("Soins rapides") and (HpRatio < 30) and Combat) then
-				--Flash Heal
-				TargetUnit("raid"..HealTarget)
-				UseAction(GetSlot("Soins rapides"))
-			elseif(IsSpellReady("Prière de soins") and (nbrPoHealing >= 3)) then
-				--Prayer of Healing
-				TargetUnit("raid"..HealTarget)
-				UseAction(GetSlot("Prière de soins"))
-			elseif(IsSpellReady("Rénovation") and (HpLost >= RenewValue[RenewRank]) and not RenewBuff) then
-				--Renew
-				TargetUnit("raid"..HealTarget)
-				UseAction(GetSlot("Rénovation"))
-			elseif(IsSpellReady("Soins supérieurs") and (HpLost >= GreaterHealValue[GreaterHealRank])) then
-				--Greater Heal
-				TargetUnit("raid"..HealTarget)
-				UseAction(GetSlot("Soins supérieurs"))
-			elseif(IsSpellReady("Soins") and (HpLost >= HealValue[HealRank])) then
-				--Heal
-				TargetUnit("raid"..HealTarget)
-				UseAction(GetSlot("Soins"))
-			elseif(IsSpellReady("Soins inférieurs") and (HpLost >= LesserHealValue[LesserHealRank]) and (UnitLevel("player") < 40)) then
-				--Lesser Heal
-				TargetUnit("raid"..HealTarget)
-				UseAction(GetSlot("Soins inférieurs"))
-			else
-				PriestDps()
-			end
+			if(tmp == 1) then PriestDps() end
 		end
 	end
 end
