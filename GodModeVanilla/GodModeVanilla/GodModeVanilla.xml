@@ -1,9 +1,0 @@
-<Ui>
-	<GameTooltip name="MyScanningTooltip" inherits="GameTooltipTemplate">
-		<Scripts>
-			<Onload>
-				MyScanningTooltip:SetOwner(WorldFrame, "ANCHOR_NONE");
-			</Onload>
-		</Scripts>
-	</GameTooltip>
-</Ui>
