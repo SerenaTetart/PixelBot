@@ -44,7 +44,6 @@ class Interface(tk.Tk):
             for file in os.listdir(self.PATH_Screenshot):
                 nbrTmp = re.findall('[0-9]+', file)
                 if(int(nbrTmp[0]) > self.indexIMG): self.indexIMG = int(nbrTmp[0])
-            print(self.indexIMG+1)
         
          # Tabs
         tabControl = ttk.Notebook(self)
@@ -126,7 +125,6 @@ class Interface(tk.Tk):
             for file in os.listdir(self.PATH_Screenshot):
                 nbrTmp = re.findall('[0-9]+', file)
                 if(int(nbrTmp[0]) > self.indexIMG): self.indexIMG = int(nbrTmp[0])
-            print(self.indexIMG+1)
         
     def open_credentials_tab(self):
         global credentialTab
