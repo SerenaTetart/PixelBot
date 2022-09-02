@@ -6,7 +6,6 @@ from tkinter import ttk
 import tkinter as tk
 import numpy as np
 import mouse
-import time
 import PIL
 import os
 import re
@@ -45,6 +44,7 @@ class Interface(tk.Tk):
             for file in os.listdir(self.PATH_Screenshot):
                 nbrTmp = re.findall('[0-9]+', file)
                 if(int(nbrTmp[0]) > self.indexIMG): self.indexIMG = int(nbrTmp[0])
+            print(self.indexIMG+1)
         
          # Tabs
         tabControl = ttk.Notebook(self)
@@ -126,6 +126,7 @@ class Interface(tk.Tk):
             for file in os.listdir(self.PATH_Screenshot):
                 nbrTmp = re.findall('[0-9]+', file)
                 if(int(nbrTmp[0]) > self.indexIMG): self.indexIMG = int(nbrTmp[0])
+            print(self.indexIMG+1)
         
     def open_credentials_tab(self):
         global credentialTab
@@ -176,9 +177,12 @@ class Interface(tk.Tk):
     def on_KeyPress(self, key):
         if(hasattr(key, 'char') and key.char == '²'): self.takeScreenshot()
         elif(key == keyboard.Key.page_up):
-            for i in range(int(self.numberClientsList.get())):
-                win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_PRIOR, 0)
-                win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, win32con.VK_PRIOR, 0)
+            for i in range(self.NBR_ACCOUNT//5):
+                if(win32gui.GetForegroundWindow() in self.hwndACC[i*5:(i*5)+5]):
+                    for y in range(i*5, (i*5)+5):
+                        win32api.PostMessage(self.hwndACC[y], win32con.WM_KEYDOWN, win32con.VK_PRIOR, 0)
+                        win32api.PostMessage(self.hwndACC[y], win32con.WM_KEYUP, win32con.VK_PRIOR, 0)
+                    return
         
     def adapt_listCoord(self):
         screenWidth = 1920; screenHeight = 1080
@@ -245,7 +249,6 @@ class Interface(tk.Tk):
         
     def launch_repair_clients(self):
         #Launch or Repair clients
-        global background_music
         if self.LaunchRepair_Button.config('text')[-1] == 'Launch':
             self.LaunchRepair_Button.config(text='Repair')
             self.NBR_ACCOUNT = int(self.numberClientsList.get())
@@ -264,7 +267,6 @@ class Interface(tk.Tk):
                 self.send_client_txt(self.hwndACC[i], self.ACC_Info[i][1])
                 win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_RETURN, 0)
                 win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, win32con.VK_RETURN, 0)
-            background_music.terminate()
         else: #Repair
             for i in range(self.NBR_ACCOUNT):
                 if(not win32gui.IsWindow(self.hwndACC[i])):
@@ -318,37 +320,35 @@ class Interface(tk.Tk):
             self.indexIMG = self.indexIMG + 1
         
     def run_script(self):
-        while(self.script_running):
-            if(self.PIXEL_COORD != []):
-                img_rgb = np.array(ImageGrab.grab(bbox=None, include_layered_windows=False, all_screens=True))
-                for i in range(self.NBR_ACCOUNT):
-                    bluePixel = img_rgb[self.PIXEL_COORD[i][1], self.PIXEL_COORD[i][0], 2]
-                    if(i > 0):
-                        if(bluePixel == 0 and self.InMovement[i-1] > 0):
-                            for y in range(len(self.MOVEMENT_KEY)):
-                                win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, self.MOVEMENT_KEY[y], 0)
-                            self.InMovement[i-1] = 0
-                        elif(bluePixel == 3): #Turn on the Right
-                            self.InMovement[i-1] = 1
-                            win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[0], 0)
-                        elif(bluePixel == 4): #Walk Forward
-                            self.InMovement[i-1] = 2
-                            win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[1], 0)
-                        elif(bluePixel == 5): #Walk Backward
-                            self.InMovement[i-1] = 3
-                            win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[2], 0)
-                        elif(bluePixel == 6): #Walk Backward briefly
-                            win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[2], 0)
-                            win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, self.MOVEMENT_KEY[2], 0)
-                        elif(bluePixel == 7): #Strafe Left
-                            self.InMovement[i-1] = 4
-                            win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[3], 0)
-                        elif(bluePixel == 8): #Jump !
-                            win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_SPACE, 0)
-                            win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, win32con.VK_SPACE, 0)
-                    win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_NEXT, 0)
-                    win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, win32con.VK_NEXT, 0)
-                time.sleep(0.3)
+        if(self.script_running and self.PIXEL_COORD != []):
+            img_rgb = np.array(ImageGrab.grab(bbox=None, include_layered_windows=False, all_screens=True))
+            for i in range(self.NBR_ACCOUNT):
+                bluePixel = img_rgb[self.PIXEL_COORD[i][1], self.PIXEL_COORD[i][0], 2]
+                if(i > 0):
+                    if(bluePixel == 0 and self.InMovement[i-1] > 0):
+                        for y in range(len(self.MOVEMENT_KEY)):
+                            win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, self.MOVEMENT_KEY[y], 0)
+                        self.InMovement[i-1] = 0
+                    elif(bluePixel == 3): #Turn on the Right
+                        self.InMovement[i-1] = 1
+                        win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[0], 0)
+                    elif(bluePixel == 4): #Walk Forward
+                        self.InMovement[i-1] = 2
+                        win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[1], 0)
+                    elif(bluePixel == 5): #Walk Backward
+                        self.InMovement[i-1] = 3
+                        win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[2], 0)
+                    elif(bluePixel == 6): #Walk Backward briefly
+                        win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[2], 0)
+                        win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, self.MOVEMENT_KEY[2], 0)
+                    elif(bluePixel == 7): #Strafe Left
+                        self.InMovement[i-1] = 4
+                        win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, self.MOVEMENT_KEY[3], 0)
+                    elif(bluePixel == 8): #Jump !
+                        win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_SPACE, 0)
+                        win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, win32con.VK_SPACE, 0)
+                win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYDOWN, win32con.VK_NEXT, 0)
+                win32api.PostMessage(self.hwndACC[i], win32con.WM_KEYUP, win32con.VK_NEXT, 0)
         self.after(300, self.run_script)
         
     #Main :
