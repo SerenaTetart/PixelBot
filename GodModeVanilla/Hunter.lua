@@ -7,14 +7,22 @@ HunterMarkTexture = "Interface\\Icons\\Ability_Hunter_SniperShot"
 ViperStingTexture = "Interface\\Icons\\Ability_Hunter_AimedShot"
 SerpentStingTexture = "Interface\\Icons\\Ability_Hunter_Quickshot"
 TrueshotAuraTexture = "Interface\\Icons\\Ability_TrueShot"
-
+FeedingTexture = "Interface\\Icons\\Ability_Hunter_BeastTraining"
 
 function HunterDps()
 	if(CastingInfo == nil and not UnitIsDeadOrGhost("player")) then
 		local TrueshotAuraBuff = GetUnitBuff("player", TrueshotAuraTexture)
+		local FeedingBuff = GetUnitBuff("pet", FeedingTexture)
 		local HasAggro = PlayerHasAggro()
 		if(IsInGroup()) then AssistUnit(GetTank()) end
-		if(IsSpellReady("Aspect of the Hawk") and not AotHawkBuff and not Combat) then
+		if(UnitIsDeadOrGhost("pet") and IsSpellReady("Revive Pet")) then
+			--Revive Pet
+			CastSpellByName("Revive Pet")
+		elseif(not Combat and not IsGroupInCombat() and HasPetUI() and (GetPetHappiness() < 3) and not UnitIsDeadOrGhost("pet") and not FeedingBuff and HasMeat()) then
+			--Feed Pet
+			CastSpellByName("Feed Pet")
+			PlaceItem(120, HasMeat()) UseAction(120)
+		elseif(IsSpellReady("Aspect of the Hawk") and not AotHawkBuff and not Combat) then
 			--Aspect of the Hawk
 			CastSpellByName("Aspect of the Hawk")
 		elseif((PrctHp[0] < 40) and HasHealthstone() and (GetHealthstoneCD() < 1.25) and Combat) then
@@ -34,6 +42,7 @@ function HunterDps()
 			local ViperStingDebuff = GetUnitDebuff("target", ViperStingTexture)
 			local SerpentStingDebuff = GetUnitDebuff("target", SerpentStingTexture)
 			local StingDebuff = SerpentStingDebuff or ViperStingDebuff
+			if(UnitAffectingCombat("target")) then PetAttack() end
 			if(IsActionInRange(GetSlot("Auto Shot")) == 1) then
 				local AotHawkBuff = GetUnitBuff("player", AotHawkTexture)
 				if(IsFollowing) then TimerGodMode = 0.5 BlueBool = 6 end
@@ -89,6 +98,8 @@ function HunterDps()
 				--Auto Shot
 				CastSpellByName("Auto Shot")
 			end
+		else
+			PetPassiveMode()
 		end
 	end
 end

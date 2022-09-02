@@ -74,7 +74,6 @@ local function GetRankSpellList(coreTxt, list)
 end
 
 function WarlockDps()
-	if(UnitAffectingCombat("target")) then PetAttack() end
 	if(CastingInfo == nil and not UnitIsDeadOrGhost("player")) then
 		local DemonArmorBuff = GetUnitBuff("player", DemonArmorTexture)
 		local RankHealthstone = GetRankSpellList("Create Healthstone", listRank)
@@ -117,6 +116,7 @@ function WarlockDps()
 			local CoAgonyDebuff = GetUnitDebuff("target", CoAgonyTexture)
 			local LifeSiphonDebuff = GetUnitDebuff("target", LifeSiphonTexture)
 			local ImmolateDebuff = GetUnitDebuff("target", ImmolateTexture)
+			if(UnitAffectingCombat("target")) then PetAttack() end
 			if(IsSpellReady("Mortal Coil") and PrctHp[0] < 35) then
 				--Mortal Coil
 				UseAction(GetSlot("Mortal Coil"))
@@ -147,11 +147,13 @@ function WarlockDps()
 			elseif(IsSpellReady("Life Tap") and (PrctHp[0] > 25) and (PrctMana < 10)) then
 				--Life Tap
 				UseAction(GetSlot("Life Tap"))
-			elseif(HasWandEquipped() and not IsAutoRepeatAction(GetSlot("Wand"))) then
+			elseif(HasWandEquipped() and not IsAutoRepeatAction(GetSlot("Shoot"))) then
 				--Wand
-				UseAction(GetSlot("Wand"))
+				UseAction(GetSlot("Shoot"))
 			end
 		end
+	else
+		PetPassiveMode()
 	end
 end
 

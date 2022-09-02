@@ -98,13 +98,13 @@ local function PriestDps()
 				elseif(IsSpellReady("Smite")) then
 					--Smite
 					UseAction(GetSlot("Smite"))
-				elseif(HasWandEquipped() and not IsAutoRepeatAction(GetSlot("Wand"))) then
+				elseif(HasWandEquipped() and not IsAutoRepeatAction(GetSlot("Shoot"))) then
 					--Wand
-					CastSpellByName("Wand")
+					CastSpellByName("Shoot")
 				end
-			elseif(HasWandEquipped() and not IsAutoRepeatAction(GetSlot("Wand"))) then
-				--Wand
-				CastSpellByName("Wand")
+			elseif(HasWandEquipped() and not IsAutoRepeatAction(GetSlot("Shoot"))) then
+				--Shoot
+				CastSpellByName("Shoot")
 			end
 		end
 	end

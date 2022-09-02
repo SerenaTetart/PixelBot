@@ -245,6 +245,18 @@ function HasDrink()
 	return 0
 end
 
+function HasMeat()
+	local CookedlistID = {117, 724, 1017, 2287, 2679, 2680, 2681, 2684, 2685, 2687, 2888, 3220, 3662, 3664, 3726, 3727, 3728, 3770, 3771, 4457, 4599, 5472, 5474, 5477, 5478, 5479, 7097, 8952, 11444, 12209, 12210, 12211, 12213, 12215, 12216, 12224, 13851, 17119, 17222, 17407, 17408, 18045, 19224, 19304, 19305, 20074, 21023}
+	local RawlistID = {723, 729, 731, 769, 1015, 1080, 2672, 2673, 2677, 2886, 2924, 3172, 3173, 3404, 3667, 3712, 3730, 3731, 5465, 5467, 5469, 5470, 5471, 12037, 12184, 12202, 12203, 12204, 12205, 12208, 12223, 20424, 21024}
+	for _, ID in ipairs(CookedlistID) do
+		if(GetItemCount(ID) > 0) then return ID end
+	end
+	for _, ID in ipairs(RawlistID) do
+		if(GetItemCount(ID) > 0) then return ID end
+	end
+	return 0
+end
+
 function HasHPotion()
 	if((GetItemCount(118) > 0) and (UnitLevel("player") < 20)) then
 		--Minor Healing Potion
@@ -372,6 +384,12 @@ local function GetRessourcesList(mode)
 		listID = {2589, 2592, 3182, 4306, 4337, 4338, 10285, 14047, 14227, 14256}
 	elseif(mode == 3) then --Blacksmithing
 		listID = {2770, 2771, 2772, 2775, 2776, 2835, 2836, 2838, 3858, 7912, 10620, 11370}
+	elseif(mode == 4) then --Hunter Pet's Meat
+		local CookedlistID = {117, 724, 1017, 2287, 2679, 2680, 2681, 2684, 2685, 2687, 2888, 3220, 3662, 3664, 3726, 3727, 3728, 3770, 3771, 4457, 4599, 5472, 5474, 5477, 5478, 5479, 7097, 8952, 11444, 12209, 12210, 12211, 12213, 12215, 12216, 12224, 13851, 17119, 17222, 17407, 17408, 18045, 19224, 19304, 19305, 20074, 21023}
+		for _,ID in ipairs(CookedlistID) do
+			if(GetItemCount(ID) > 0) then ressList[i] = ID i = i+1 end
+		end
+		listID = {723, 729, 731, 769, 1015, 1080, 2672, 2673, 2677, 2886, 2924, 3172, 3173, 3404, 3667, 3712, 3730, 3731, 5465, 5467, 5469, 5470, 5471, 12037, 12184, 12202, 12203, 12204, 12205, 12208, 12223, 20424, 21024}
 	end
 	for _,ID in ipairs(listID) do
 		if(GetItemCount(ID) > 0) then ressList[i] = ID i = i+1 end
@@ -379,42 +397,42 @@ local function GetRessourcesList(mode)
 	return ressList
 end
 
-function GiveRessources(ltwName, tailorName, alchimistName, blacksmithName)
+function GiveRessources(ltwName, tailorName, alchimistName, blacksmithName, hunterName)
 	--Exchange ressources gathered with the team
 	if(not Combat) then
-		local ressAlchList = {} local ressLtwList = {} local ressTailorList = {} local ressBlacksmithList = {}
-		ressAlchList = GetRessourcesList(0)
-		if(ressAlchList[1] == nil or (GetAllyByName(alchimistName) == 0) or not CheckInteractDistance(tar..GetAllyByName(alchimistName), 2)) then
-			ressLtwList = GetRessourcesList(1)
-			if(ressLtwList[1] == nil or (GetAllyByName(ltwName) == 0) or not CheckInteractDistance(tar..GetAllyByName(ltwName), 2)) then
-				ressTailorList = GetRessourcesList(2)
-				if(ressTailorList[1] == nil or (GetAllyByName(tailorName) == 0) or not CheckInteractDistance(tar..GetAllyByName(tailorName), 2)) then
-					ressBlacksmithList = GetRessourcesList(3)
-					if((GetAllyByName(tailorName) > 0) or CheckInteractDistance(tar..GetAllyByName(blacksmithName), 2)) then
-						for _,ID in ipairs(ressBlacksmithList) do
-							PickupItem(ID)
-							DropItemOnUnit(tar..GetAllyByName(blacksmithName))
-							AcceptTrade()
-						end
-					end
-				else
-					for _,ID in ipairs(ressTailorList) do
-						PickupItem(ID)
-						DropItemOnUnit(tar..GetAllyByName(tailorName))
-						AcceptTrade()
-					end
-				end
-			else
-				for _,ID in ipairs(ressLtwList) do
-					PickupItem(ID)
-					DropItemOnUnit(tar..GetAllyByName(ltwName))
-					AcceptTrade()
-				end
-			end
-		else
+		local ressAlchList = GetRessourcesList(0)
+		local ressLeatherList = GetRessourcesList(1)
+		local ressTailorList = GetRessourcesList(2)
+		local ressBlacksmithList = GetRessourcesList(3)
+		local ressHunterList = GetRessourcesList(4)
+		if(ressAlchList[1] ~= nil and (GetAllyByName(alchimistName) > 0) and CheckInteractDistance(tar..GetAllyByName(alchimistName), 2)) then
 			for _,ID in ipairs(ressAlchList) do
 				PickupItem(ID)
 				DropItemOnUnit(tar..GetAllyByName(alchimistName))
+				AcceptTrade()
+			end
+		elseif(ressLeatherList[1] ~= nil and (GetAllyByName(ltwName) > 0) and CheckInteractDistance(tar..GetAllyByName(ltwName), 2)) then
+			for _,ID in ipairs(ressLeatherList) do
+				PickupItem(ID)
+				DropItemOnUnit(tar..GetAllyByName(ltwName))
+				AcceptTrade()
+			end
+		elseif(ressTailorList[1] ~= nil and (GetAllyByName(tailorName) > 0) and CheckInteractDistance(tar..GetAllyByName(tailorName), 2)) then
+			for _,ID in ipairs(ressTailorList) do
+				PickupItem(ID)
+				DropItemOnUnit(tar..GetAllyByName(tailorName))
+				AcceptTrade()
+			end
+		elseif(ressBlacksmithList[1] ~= nil and (GetAllyByName(blacksmithName) > 0) and CheckInteractDistance(tar..GetAllyByName(blacksmithName), 2)) then
+			for _,ID in ipairs(ressBlacksmithList) do
+				PickupItem(ID)
+				DropItemOnUnit(tar..GetAllyByName(blacksmithName))
+				AcceptTrade()
+			end
+		elseif(ressHunterList[1] ~= nil and (GetAllyByName(hunterName) > 0) and CheckInteractDistance(tar..GetAllyByName(hunterName), 2)) then
+			for _,ID in ipairs(ressHunterList) do
+				PickupItem(ID)
+				DropItemOnUnit(tar..GetAllyByName(hunterName))
 				AcceptTrade()
 			end
 		end
@@ -954,8 +972,9 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 			if((tankTar ~= "") and CheckInteractDistance(tankTar, 4)) then
 				if(not IsFollowing) then FollowByName(UnitName(tankTar)) end
 			elseif((arg1 == "Out of range.") or (arg1 == "Target not in line of sight")) then TimerGodMode = 0.5 BlueBool = 4 end
-		elseif(string.find(arg1, "Inventory is full.")) then
+		elseif(string.find(arg1, "Your partner does not have enough free bag slots")) then
 			CloseTrade()
+			TradePending = false
 		end
 	elseif(event == "SPELLCAST_START" or event == "SPELLCAST_CHANNEL_START") then
 		--arg1: Spell name | arg2: Cast time (ms)

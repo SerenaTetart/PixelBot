@@ -82,8 +82,11 @@ function MageDps()
 			UseAction(GetSlot("Evocation"))
 		elseif(UnitCanAttack("player", "target") and (UnitIsDeadOrGhost("target") == nil)) then
 			if(CheckInteractDistance("target", 4) and IsFollowing) then
-				if(not Combat) then TimerGodMode = 0.5 BlueBool = 7
-				else TimerGodMode = 0.5 BlueBool = 6 end
+				if(CheckInteractDistance("target", 2)) then TimerGodMode = 0.5 BlueBool = 5 --Move backward if too close (11.11 yard)
+				elseif(not Combat) then TimerGodMode = 0.5 BlueBool = 7 --Move to the left
+				else TimerGodMode = 0.5 BlueBool = 6 end --Stop movement
+			elseif(CheckInteractDistance("target", 2) and (not PlayerHasAggro() or IsStunned("target") or IsRooted("target"))) then
+				BlueBool = 5
 			end
 			if(IsSpellReady("Frost Nova") and CheckInteractDistance("target", 2)) then
 				--Frost Nova
@@ -97,9 +100,9 @@ function MageDps()
 			elseif(IsSpellReady("Frostbolt")) then
 				--Frostbolt
 				UseAction(GetSlot("Frostbolt"))
-			elseif(HasWandEquipped() and not IsAutoRepeatAction(GetSlot("Wand"))) then
+			elseif(HasWandEquipped() and not IsAutoRepeatAction(GetSlot("Shoot"))) then
 				--Wand
-				UseAction(GetSlot("Wand"))
+				UseAction(GetSlot("Shoot"))
 			elseif(IsSpellReady("Fireball")) then
 				--Fireball
 				UseAction(GetSlot("Fireball"))

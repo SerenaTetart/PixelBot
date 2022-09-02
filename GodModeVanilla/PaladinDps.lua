@@ -195,10 +195,10 @@ function PaladinHeal_Dps()
 		elseif(Combat and (PrctMana < 10) and ((PrctHp[0] > 50) or not HasHPotion()) and HasMPotion() and (GetMPotionCD() < 1.25)) then
 			--Mana Potion
 			PlaceItem(120, "Mana Potion") UseAction(120)
-		elseif(IsSpellReady("Purify") and GetUnitDispel("player", "Disease", "Poison") and (HpRatio > 50) and (PrctMana > 25)) then
+		elseif(IsSpellReady("Purify") and GetUnitDispel("player", "Disease", "Poison") and (PrctMana > 25)) then
 			--Purify (self)
 			UseAction(GetSlot("Purify"), 0, 1)
-		elseif(IsSpellReady("Purify") and (PurifyDispelKey > 0) and (HpRatio > 50) and (PrctMana > 25)) then
+		elseif(IsSpellReady("Purify") and (PurifyDispelKey > 0) and (PrctMana > 25)) then
 			--Purify (Groupe)
 			if(IsInRaid()) then
 				TargetUnit("raid"..PurifyDispelKey)
@@ -206,10 +206,10 @@ function PaladinHeal_Dps()
 				TargetUnit("party"..PurifyDispelKey)
 			end
 			UseAction(GetSlot("Purify"))
-		elseif(IsSpellReady("Cleanse") and GetUnitDispel("player", "Disease", "Poison", "Magic") and (HpRatio > 50) and (PrctMana > 25)) then
+		elseif(IsSpellReady("Cleanse") and GetUnitDispel("player", "Disease", "Poison", "Magic") and (PrctMana > 25)) then
 			--Cleanse (self)
 			UseAction(GetSlot("Cleanse"), 0, 1)
-		elseif(IsSpellReady("Cleanse") and (CleanseDispelKey > 0) and (HpRatio > 50) and (PrctMana > 25)) then
+		elseif(IsSpellReady("Cleanse") and (CleanseDispelKey > 0) and (PrctMana > 25)) then
 			--Cleanse (Groupe)
 			if(IsInRaid()) then
 				TargetUnit("raid"..CleanseDispelKey)
