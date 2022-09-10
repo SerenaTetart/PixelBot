@@ -5,7 +5,7 @@ local BreathTimer = -1
 
 Combat = false BlueBool = 0 CastingInfo = nil
 IDEquipment = {} TabAggro = {} NbrEnemyAggro = 0 TimerGodMode = 0
-IsFollowing = false IsTrading = false tar = "party"
+IsFollowing = false IsTrading = false tar = "party" secondTar = ""
 
 --Stats Related
 PrctMana = 100 --Pourcentage de Mana du joueur
@@ -755,8 +755,16 @@ function GetHealer()
 	return 0
 end
 
+function GetMeleeDpsIndex()
+	--Retourne l'indice du premier dps CaC du groupe
+	for i= 1, GetNumGroupMembers() do
+		if(not UnitIsRanged(tar..i) and not ValueInArray(UnitName(tar..i), ListTankName)) then return tar..i end
+	end
+	return 0
+end
+
 function GetTank()
-	--Retourne l'indice du tank
+	--Retourne l'indice du premier tank du groupe/raid figurant dans la liste
 	for i= 1, GetNumGroupMembers() do
 		if(ValueInArray(UnitName(tar..i), ListTankName)) then return tar..i end
 	end
@@ -812,7 +820,7 @@ end
 function FollowMultibox(name)
 	if(TimerGodMode < 0.1 and FollowBool) then
 		for i= 1, GetNumGroupMembers() do
-			if(not Combat and not IsGroupInCombat() and (UnitName(tar..i) == name) and CheckInteractDistance(tar..i, 4) and ((not UnitIsDeadOrGhost(tar..i) and not UnitIsDeadOrGhost("player")) or (UnitIsDeadOrGhost(tar..i) and UnitIsDeadOrGhost("player")))) then
+			if(not Combat and (CastingInfo == nil) and not IsGroupInCombat() and (UnitName(tar..i) == name) and CheckInteractDistance(tar..i, 4) and ((not UnitIsDeadOrGhost(tar..i) and not UnitIsDeadOrGhost("player")) or (UnitIsDeadOrGhost(tar..i) and UnitIsDeadOrGhost("player")))) then
 				FollowUnit(tar..i)
 			end
 		end
@@ -909,6 +917,7 @@ local function MakeCombatMacro(index, body, txt)
 end
 
 function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
+	local playerRole = GetPlayerRole()
 	if(event =="ADDON_LOADED" and arg1 == "GodModeVanilla") then
 		GodModeVanilla.Pixel = GodModeVanilla:CreateTexture()
 		GodModeVanilla.Pixel:SetPoint("CENTER", UIParent, "CENTER", -300, -50)
@@ -922,12 +931,12 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 		InnerCDLoad = 60.0
 		local macroIndex = GetMacroIndexByName("God Mode")
 		local _,_,macroBody = GetMacroInfo(macroIndex)
-		if(UnitClass("player") == "Shaman" and (GetPlayerRole() < 3)) then
+		if(UnitClass("player") == "Shaman" and (playerRole < 3)) then
 			if(UnitName("player") == "Layera") then MakeCombatMacro(macroIndex, macroBody, "/run ShamanHeal_DpsDist()")
 			else MakeCombatMacro(macroIndex, macroBody, "/run ShamanHeal_Heal()") end
 			IDEquipment = GetEquipmentID()
 			Shaman_OnLoad()
-		elseif(UnitClass("player") == "Shaman" and (GetPlayerRole() == 3)) then
+		elseif(UnitClass("player") == "Shaman" and (playerRole == 3)) then
 			MakeCombatMacro(macroIndex, macroBody, "/run ShamanHeal_Dps()")
 			Shaman_OnLoad()
 		elseif(UnitClass("player") == "Hunter") then
@@ -943,9 +952,9 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 		elseif(UnitClass("player") == "Warrior") then
 			MakeCombatMacro(macroIndex, macroBody, "/run WarriorDps()")
 			Warrior_OnLoad()
-		elseif(UnitClass("player") == "Paladin" and (GetPlayerRole() == 2)) then
+		elseif(UnitClass("player") == "Paladin" and (playerRole == 2)) then
 			MakeCombatMacro(macroIndex, macroBody, "/run PaladinHeal_Tank()")
-		elseif(UnitClass("player") == "Paladin" and (GetPlayerRole() == 1)) then
+		elseif(UnitClass("player") == "Paladin" and (playerRole == 1)) then
 			MakeCombatMacro(macroIndex, macroBody, "/run PaladinHeal_Heal()")
 		elseif(UnitClass("player") == "Paladin") then
 			MakeCombatMacro(macroIndex, macroBody, "/run PaladinHeal_Dps()")
@@ -964,13 +973,18 @@ function GodModeVanilla:OnEvent(this, event, arg1, arg2, arg3, arg4, arg5)
 		print("GodModeVanilla: Combat engaged")
 	elseif(event == "UI_ERROR_MESSAGE") then
 		local tankTar = GetTank()
-		if(((arg1 == "Target needs to be in front of you") or (arg1 == "You are facing the wrong way!")) and (BlueBool ~= 3)) then
+		local secondTar = GetMeleeDpsIndex()
+		if((playerRole ~= 2) and ((arg1 == "Target needs to be in front of you") or (arg1 == "You are facing the wrong way!")) and (BlueBool ~= 3)) then
 			if((tankTar ~= "") and CheckInteractDistance(tankTar, 4)) then
 				if(not IsFollowing) then FollowByName(UnitName(tankTar)) end
+			elseif(secondTar ~= "" and CheckInteractDistance(secondTar, 4)) then
+				if(not IsFollowing) then FollowByName(UnitName(secondTar)) end
 			else TimerGodMode = 0.2 BlueBool = 3 end
-		elseif(((arg1 == "Out of range.") or (arg1 == "You are too far away!" and not UnitIsRanged("player")) or (arg1 == "Target not in line of sight")) and (BlueBool ~= 4)) then
+		elseif((playerRole ~= 2) and ((arg1 == "Out of range.") or (arg1 == "You are too far away!" and not UnitIsRanged("player")) or (arg1 == "Target not in line of sight")) and (BlueBool ~= 4)) then
 			if((tankTar ~= "") and CheckInteractDistance(tankTar, 4)) then
 				if(not IsFollowing) then FollowByName(UnitName(tankTar)) end
+			elseif(secondTar ~= "" and CheckInteractDistance(secondTar, 4)) then
+				if(not IsFollowing) then FollowByName(UnitName(secondTar)) end
 			elseif((arg1 == "Out of range.") or (arg1 == "Target not in line of sight")) then TimerGodMode = 0.5 BlueBool = 4 end
 		elseif(string.find(arg1, "Your partner does not have enough free bag slots")) then
 			CloseTrade()

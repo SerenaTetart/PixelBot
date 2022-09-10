@@ -205,7 +205,7 @@ function DruidHeal()
 			TargetUnit("player")
 			UseAction(GetSlot("Thorns"))
 		elseif(IsSpellReady("Mark of the Wild") and (MarkWildKey > 0) and not Combat) then
-			--Mark of the Wild (Groupe)
+			--Mark of the Wild (Group)
 			if(IsSpellReady("Don du fauve") and (GetItemCount(17026) > 0)) then
 				UseAction(GetSlot("Mark of the Wild"))
 			else

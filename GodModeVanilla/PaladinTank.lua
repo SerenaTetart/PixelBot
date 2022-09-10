@@ -161,7 +161,7 @@ function PaladinHeal_Tank()
 		HasAggro = PlayerHasAggro()
 		if(IsPlayerSpell("Retribution Aura") and not RetributionAuraBuff) then
 			--Retribution Aura
-			UseAction(GetSlot("Retribution Aura"))
+			CastSpellByName("Retribution Aura")
 		elseif(IsPlayerSpell("Righteous Fury") and not RighteousFuryBuff) then
 			--Righteous Fury
 			UseAction(GetSlot("Righteous Fury"))

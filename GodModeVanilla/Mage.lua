@@ -31,6 +31,7 @@ end
 
 function MageDps()
 	if(CastingInfo == nil and not UnitIsDeadOrGhost("player")) then
+		local RemoveCurseKey = GetDispelKey("Curse")
 		local FrostArmorBuff = GetUnitBuff("player", FrostArmorTexture)
 		local MageArmorBuff = GetUnitBuff("player", MageArmorTexture)
 		local IceBarrierBuff = GetUnitBuff("player", IceBarrierTexture)
@@ -49,7 +50,7 @@ function MageDps()
 			--Arcane Intellect (self)
 			UseAction(GetSlot("Arcane Intellect"), 0, 1)
 		elseif(IsSpellReady("Arcane Intellect") and (ArcaneIntellectKey > 0)) then
-			--Arcane Intellect (Groupe)
+			--Arcane Intellect (Group)
 			if(IsInRaid()) then TargetUnit("raid"..ArcaneIntellectKey)
 			else TargetUnit("party"..ArcaneIntellectKey) end
 			UseAction(GetSlot("Arcane Intellect"))
@@ -80,6 +81,18 @@ function MageDps()
 		elseif((PrctMana < 15) and IsSpellReady("Evocation") and Combat) then
 			--Evocation
 			UseAction(GetSlot("Evocation"))
+		elseif(IsSpellReady("Remove Lesser Curse") and GetUnitDispel("player", "Curse")) then
+			--Remove Lesser Curse (self)
+			TargetUnit("player")
+			UseAction(GetSlot("Remove Lesser Curse"))
+		elseif(IsSpellReady("Remove Lesser Curse") and (RemoveCurseKey > 0)) then
+			--Remove Lesser Curse (Group)
+			if(IsInRaid()) then
+				TargetUnit("raid"..RemoveCurseKey)
+			else
+				TargetUnit("party"..RemoveCurseKey)
+			end
+			UseAction(GetSlot("Remove Curse"))
 		elseif(UnitCanAttack("player", "target") and (UnitIsDeadOrGhost("target") == nil)) then
 			if(CheckInteractDistance("target", 4) and IsFollowing) then
 				if(CheckInteractDistance("target", 2)) then TimerGodMode = 0.5 BlueBool = 5 --Move backward if too close (11.11 yard)
@@ -88,7 +101,7 @@ function MageDps()
 			elseif(CheckInteractDistance("target", 2) and (not PlayerHasAggro() or IsStunned("target") or IsRooted("target"))) then
 				BlueBool = 5
 			end
-			if(IsSpellReady("Frost Nova") and CheckInteractDistance("target", 2)) then
+			if(IsSpellReady("Frost Nova") and CheckInteractDistance("target", 1)) then
 				--Frost Nova
 				UseAction(GetSlot("Frost Nova"))
 			elseif(IsSpellReady("Cone of Cold") and CheckInteractDistance("target", 2) and UnitPlayerControlled("target")) then

@@ -15,7 +15,11 @@ function HunterDps()
 		local FeedingBuff = GetUnitBuff("pet", FeedingTexture)
 		local HasAggro = PlayerHasAggro()
 		if(IsInGroup()) then AssistUnit(GetTank()) end
-		if(UnitIsDeadOrGhost("pet") and IsSpellReady("Revive Pet")) then
+		if(not HasPetUI()) then
+			--Call Pet
+			CastSpellByName("Call Pet")
+			PlaceItem(120, HasMeat()) UseAction(120)
+		elseif(UnitIsDeadOrGhost("pet") and IsSpellReady("Revive Pet")) then
 			--Revive Pet
 			CastSpellByName("Revive Pet")
 		elseif(not Combat and not IsGroupInCombat() and HasPetUI() and (GetPetHappiness() < 3) and not UnitIsDeadOrGhost("pet") and not FeedingBuff and HasMeat()) then
