@@ -92,7 +92,7 @@ function MageDps()
 			else
 				TargetUnit("party"..RemoveCurseKey)
 			end
-			UseAction(GetSlot("Remove Curse"))
+			UseAction(GetSlot("Remove Lesser Curse"))
 		elseif(UnitCanAttack("player", "target") and (UnitIsDeadOrGhost("target") == nil)) then
 			if(CheckInteractDistance("target", 4) and IsFollowing) then
 				if(CheckInteractDistance("target", 2)) then TimerGodMode = 0.5 BlueBool = 5 --Move backward if too close (11.11 yard)
