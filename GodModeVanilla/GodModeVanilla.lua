@@ -5,7 +5,7 @@ local BreathTimer = -1
 
 Combat = false BlueBool = 0 CastingInfo = nil
 IDEquipment = {} TabAggro = {} NbrEnemyAggro = 0 TimerGodMode = 0
-IsFollowing = false IsTrading = false tar = "party" secondTar = ""
+IsFollowing = false IsTrading = false tar = "party"
 
 --Stats Related
 PrctMana = 100 --Pourcentage de Mana du joueur
